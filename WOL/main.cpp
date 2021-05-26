@@ -59,6 +59,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static POINT mouse;
 	static RECT c;
 	static HBITMAP hBit1, hBit2, oldBit1, oldBit2;
+	//bool compile = FALSE;
 
 	switch (uMsg)
 	{
