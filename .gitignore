@@ -1,6 +1,10 @@
+/Wizard_Of_Legend/.vs
+/Wizard_Of_Legend/x64
+/Wizard_Of_Legend/x86
+/Wizard_Of_Legend/ipch
 /.vs
-/x64
 /x86
+/x64
 /ipch
 *.exe
 *.ilk
