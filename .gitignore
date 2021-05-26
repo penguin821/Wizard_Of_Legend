@@ -1,0 +1,15 @@
+/.vs
+/x64
+/x86
+/ipch
+*.exe
+*.ilk
+*.pdb
+*.obj
+*.log
+*.pch
+*.idb
+*.tlog
+*.lastbuildstate
+*.suo
+*.db
