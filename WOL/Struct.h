@@ -1,0 +1,2 @@
+#pragma once
+enum SCENE { SCENE_LOGO, SCENE_STAGE, SCENE_END };

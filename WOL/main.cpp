@@ -1,14 +1,4 @@
-#include <iostream>
-#include <Windows.h>
-#include <tchar.h>
-#include <ctime>
-
-#pragma comment (lib, "msimg32.lib")
-
-#define _MSG_BOX(MESSAGE) MessageBox(0, TEXT(MESSAGE), TEXT("Error"), MB_OK);
-
-constexpr int WINDOW_WIDTH = 900;
-constexpr int WINDOW_HEIGHT = 900;
+#include "pch.h"
 
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = L"Window";
@@ -31,10 +21,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	WndClass.lpszMenuName = NULL;
+	//WndClass.lpszMenuName = MAKEINTRESOURCE(IDR_MENU1);
 	WndClass.lpszClassName = lpszClass;
 	WndClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 	RegisterClassEx(&WndClass);
-	Window = CreateWindow(lpszClass, L"Wizard Of Legend", WS_OVERLAPPEDWINDOW,
+	Window = CreateWindow(lpszClass, L"Wizard of Legend", WS_OVERLAPPEDWINDOW,
 		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, NULL, (HMENU)NULL, hInstance, NULL);
 
 	ShowWindow(Window, nCmdShow);
@@ -51,52 +42,75 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc, mem1dc, mem2dc;
 	PAINTSTRUCT ps;
+	HDC hdc;
+	RECT c;
+	static POINT mouse;
 	HBRUSH hBrush, oldBrush;
 	HPEN hPen, oldPen;
 
-	static POINT mouse;
-	static RECT c;
-	static HBITMAP hBit1, hBit2, oldBit1, oldBit2;
-	//bool compile = FALSE;
+	HDC mem1dc;
+	static CImage Logo,Img, ImgSprite;
+	static int xPos, yPos;
+	static int animxPos, animyPos;
+	static int w, h;
+	static int sceneNow;
+	HBITMAP hBitmap;
 
 	switch (uMsg)
 	{
-	case WM_CREATE:
+	case WM_CREATE: // 첫 초기화
 	{
-		GetClientRect(hWnd, &c);
+		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
+		//Img.Load(L"bmp_chu.bmp");
+		ImgSprite.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
+
+		xPos = 0, yPos = 0;
+		animxPos = 1;
+		sceneNow = 0;
+
+		SetTimer(hWnd, 1, 100, NULL);
 		break;
+	}
+	break;
+	case WM_COMMAND:// 메뉴
+	{
+		//switch (LOWORD(wParam))
+		//{
+		//case ID_GAME_START:
+		//	break;
+		//}
+	}
+	break;
+	case WM_CHAR:
+	{
+		if (wParam == 'q' || wParam == 'Q')
+		{
+			PostQuitMessage(0);
+		}
 	}
 	break;
 	case WM_TIMER:
 	{
 		switch (wParam)
 		{
+
 		case 1:
 		{
-			break;
+			if (10 == animxPos)
+				animxPos = 1;
+			else
+				animxPos += 1;
+			//yPos += 5; 
+			InvalidateRect(hWnd, NULL, FALSE);
 		}
+
 		}
 	}
-	case WM_KEYDOWN:
+	break;
+	case WM_LBUTTONDOWN:
 	{
-		if (VK_LEFT == wParam)
-		{
 
-		}
-		if (VK_RIGHT == wParam)
-		{
-
-		}
-		if (VK_UP == wParam)
-		{
-
-		}
-		if (VK_DOWN == wParam)
-		{
-
-		}
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
 	break;
@@ -104,27 +118,71 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		mouse.x = LOWORD(lParam);
 		mouse.y = HIWORD(lParam);
+
+		//if (PtInRect(&light[i].self, mouse)) // 사각형-마우스 충돌체크
+		//{
+		//	selected = i;
+		//	break;
+		//}
 	}
 	break;
+	case WM_MOUSEMOVE:
+	{
+
+	}
+	break;
+	case WM_KEYDOWN:
+	{
+		if (VK_LEFT == wParam)
+		{
+			xPos -= 5;
+		}
+		if (VK_RIGHT == wParam)
+		{
+			xPos += 5;
+		}
+		if (VK_UP == wParam)
+		{
+			yPos -= 5;
+		}
+		if (VK_DOWN == wParam)
+		{
+			yPos += 5;
+		}
+	}
 	case WM_PAINT:
 	{
 		GetClientRect(hWnd, &c);
 		hdc = BeginPaint(hWnd, &ps);
+		hBitmap = CreateCompatibleBitmap(hdc, c.right, c.bottom);		
 		mem1dc = CreateCompatibleDC(hdc);
+		SelectObject(mem1dc, hBitmap);
 
-		//--- hBit1에는 배경과 텍스트가 출력된 비트맵이 저장되어 있다. 이 비트맵을 mem1dc에 선택 
-		oldBit1 = (HBITMAP)SelectObject(mem1dc, hBit1);
+		if (SCENE_LOGO == sceneNow)
+		{
+			w = Logo.GetWidth();
+			h = Logo.GetHeight();
+			Logo.Draw(mem1dc, 0, 0, c.right, c.bottom, 0, 0, w, h);
+			BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
+			//TransparentBlt(hdc, 0, 0, 180, 182, mem1dc, 180 * (animxPos - 1), 182 * 1, 180, 182, RGB(255, 0, 255));
+		}
+		else if (SCENE_STAGE == sceneNow)
+		{
+			w = Img.GetWidth();
+			h = Img.GetHeight();
+			//Img.Draw(mem1dc, 0, 0, c.right, c.bottom, 0, 0, w, h);
+			ImgSprite.Draw(mem1dc, xPos, yPos, 180, 182, 180 * (animxPos - 1), 182 * 1, 180, 182);
+			BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
+			TransparentBlt(hdc, 0, 0, 180, 182, mem1dc, 180 * (animxPos - 1), 182 * 1, 180, 182, RGB(255, 0, 255));
+		}
 
-		//--- mem1dc에 있는 내용을 hdc에 복사한다. 
-		BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
-
-		SelectObject(mem1dc, oldBit1);
+		DeleteObject(hBitmap);
 		DeleteDC(mem1dc);
 		EndPaint(hWnd, &ps);
-		break;
 	}
 	break;
 	case WM_DESTROY:
+		KillTimer(hWnd, 1);
 		PostQuitMessage(0);
 		break;
 	}
