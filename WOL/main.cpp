@@ -40,6 +40,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
+void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut);
+void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut);
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -187,4 +190,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut)
+{
+	int w = img->GetWidth();
+	int h = img->GetHeight();
+
+	img->Draw(hdc, posx, posy, 200, 202, 200 * (animCut - 1), 202 * 1, 200, 202);
+}
+void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut)
+{
+	int w = img->GetWidth();
+	int h = img->GetHeight();
+
+	img->Draw(hdc, posx, posy, 200, 200, 200 * (animCut - 1), 200 * 1, 200, 200);
 }
