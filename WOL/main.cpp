@@ -53,12 +53,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HPEN hPen, oldPen;
 
 	HDC mem1dc;
-	static CImage Logo,Img, ImgSprite;
+	static CImage Logo, Img, ImgSprite;
 	static int xPos, yPos;
 	static int animxPos, animyPos;
 	static int w, h;
 	static int sceneNow;
 	HBITMAP hBitmap;
+	static int badXPos3, badYPos3;
+	static int bad3AnimxPos, bad3AnimyPos, bad3attack;
+	static bool left = TRUE;
 
 	switch (uMsg)
 	{
@@ -107,6 +110,66 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//yPos += 5; 
 			InvalidateRect(hWnd, NULL, FALSE);
 		}
+
+		case 2:
+			//몬스터를 랜덤하게 이동
+			//switch (whereToGo)
+			//{
+			//case 0://up
+			//	if (c.top > badYPos3)
+			//		whereToGo = 1;
+			//	else
+			//	{
+			//		badYPos3 -= 10;
+			//		++howManyMove;
+			//	}
+			//	break;
+			//case 1://down
+			//	if (c.bottom < badYPos3+100)
+			//		whereToGo = 0;
+			//	else
+			//	{
+			//		badYPos3 += 10;
+			//		++howManyMove;
+			//	}
+			//	break;
+			//case 2://right
+			//	if (c.right < badYPos3+50)
+			//		whereToGo = 3;
+			//	else
+			//	{
+			//		badXPos3 += 10;
+			//		++howManyMove;
+			//	}
+			//	break;
+			//case 3://left
+			//	if (c.left > badYPos3)
+			//		whereToGo = 2;
+			//	else
+			//	{
+			//		badXPos3 -= 10;
+			//		++howManyMove;
+			//	}
+			//	break;
+			//}
+
+			if (xPos < badXPos3)
+			{
+				badXPos3 -= 1;
+				left = TRUE;
+			}
+			else if (xPos > badXPos3)
+			{
+				badXPos3 += 1;
+				left = FALSE;
+			}
+			if (yPos < badYPos3)
+				badYPos3 -= 1;
+			else if (yPos > badYPos3)
+				badYPos3 += 1;
+
+			InvalidateRect(hWnd, NULL, FALSE);
+			break;
 
 		}
 	}
@@ -157,7 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		GetClientRect(hWnd, &c);
 		hdc = BeginPaint(hWnd, &ps);
-		hBitmap = CreateCompatibleBitmap(hdc, c.right, c.bottom);		
+		hBitmap = CreateCompatibleBitmap(hdc, c.right, c.bottom);
 		mem1dc = CreateCompatibleDC(hdc);
 		SelectObject(mem1dc, hBitmap);
 
