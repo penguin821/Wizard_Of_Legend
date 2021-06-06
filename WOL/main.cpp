@@ -58,6 +58,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage Logo;
 	static CImage StoneTile;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
+	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight;//몬스터1
+	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack;//몬스터3
 	static int xPos, yPos;
 	static int animxPos, animyPos;
 	static SCENE sceneNow;
@@ -76,6 +78,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PlayerBack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\BACK_COMPLETE.bmp");
 		PlayerLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\LEFT_COMPLETE.bmp");
 		PlayerRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\RIGHT_COMPLETE.bmp");
+
+		ArcherBowLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_LEFT.bmp");
+		ArcherBowRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_RIGHT.bmp");
+		ArcherLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_LEFT.bmp");
+		ArcherRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_RIGHT.bmp");
+
+		SwordmanLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_LEFT.bmp");
+		SwordmanRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_RIGHT.bmp");
+		SwordmanAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_ATTACK.bmp");
 
 		xPos = 0, yPos = 0;
 		animxPos = 1;
