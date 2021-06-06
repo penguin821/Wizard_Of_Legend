@@ -54,7 +54,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HPEN hPen, oldPen;
 	static bool keyLayout[256];
 
-	HDC mem1dc;
+	HDC mem1dc,mem2dc;
 	static CImage Logo;
 	static CImage StoneTile;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
@@ -216,6 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		hdc = BeginPaint(hWnd, &ps);
 		hBitmap = CreateCompatibleBitmap(hdc, c.right, c.bottom);
 		mem1dc = CreateCompatibleDC(hdc);
+		mem2dc = CreateCompatibleDC(mem1dc);
 		SelectObject(mem1dc, hBitmap);
 
 		if (SCENE_LOGO == sceneNow)
