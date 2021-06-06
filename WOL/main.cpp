@@ -249,7 +249,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				sceneNow = SCENE_STAGE;
 				SetTimer(hWnd, 1, 50, NULL);
-				SetTimer(hWnd, 2, 50, NULL);
+				SetTimer(hWnd, 2, 20, NULL);
 
 			}
 		}
@@ -393,6 +393,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_DESTROY:
 		KillTimer(hWnd, 1);
+		KillTimer(hWnd, 2);
+		
+		Logo.ReleaseDC();
+		StoneTile.ReleaseDC();
+
+		PlayerFront.ReleaseDC();
+		PlayerBack.ReleaseDC();
+		PlayerLeft.ReleaseDC();
+		PlayerRight.ReleaseDC();
+
+		ArcherBowLeft.ReleaseDC();
+		ArcherBowRight.ReleaseDC();
+		ArcherLeft.ReleaseDC();
+		ArcherRight.ReleaseDC();
+
+		SwordmanLeft.ReleaseDC();
+		SwordmanRight.ReleaseDC();
+		SwordmanAttack.ReleaseDC();
+		
 		PostQuitMessage(0);
 		break;
 	}
