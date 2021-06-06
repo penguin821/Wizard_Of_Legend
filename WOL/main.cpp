@@ -44,7 +44,7 @@ void create_stone_map(HDC hdc, CImage* img);
 void animation(HDC hdc, CImage* img, int posx, int posy, int animCut);
 void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut);
 void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut);
-void cal_movement(DIR* dir, int* posx, int* posy, bool* input);
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input,bool* idle);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -57,7 +57,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static bool keyLayout[256];
 
 	HDC mem1dc, mem2dc;
-	static CImage Logo;
+	static CImage Logo,Target;
 	static CImage StoneTile;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight;//몬스터1
@@ -80,21 +80,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE: // 첫 초기화
 	{
 		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
+		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
+
 		StoneTile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stonetile.bmp");
+
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
 		PlayerBack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\BACK_COMPLETE.bmp");
 		PlayerLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\LEFT_COMPLETE.bmp");
 		PlayerRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\RIGHT_COMPLETE.bmp");
-
 
 		ArcherBowLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_LEFT.bmp");
 		ArcherBowRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_RIGHT.bmp");
 		ArcherLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_LEFT.bmp");
 		ArcherRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_RIGHT.bmp");
 
-		SwordmanLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_LEFT.bmp");
-		SwordmanRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_RIGHT.bmp");
-		SwordmanAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\SWORDMAN_ATTACK.bmp");
+		SwordmanLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_LEFT.bmp");
+		SwordmanRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_RIGHT.bmp");
+		SwordmanAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_ATTACK.bmp");
 
 		xPos = 0, yPos = 0;
 		badXPos3 = 950, badYPos3 = 500;
@@ -132,7 +134,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case 1:
 		{
-			cal_movement(&dir_pl, &xPos, &yPos, keyLayout);
+			cal_movement(&dir_pl, &xPos, &yPos, keyLayout,&isIdle);
 			if (!isIdle)
 			{
 				if (10 == animxPos)
@@ -220,7 +222,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_LBUTTONDOWN:
 	{
-
+		mouse.x = LOWORD(lParam);
+		mouse.y = HIWORD(lParam);
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
 	break;
@@ -238,7 +241,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_MOUSEMOVE:
 	{
-
+		mouse.x = LOWORD(lParam);
+		mouse.y = HIWORD(lParam);
 	}
 	break;
 	case WM_KEYDOWN:
@@ -328,6 +332,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			/*if (howManyMove % 10 == 0)
 				whereToGo = direction(gen);*/
 
+			Target.Draw(mem2dc, mouse.x - 30, mouse.y - 30, mouse.x + 30, mouse.y + 30, 0, 0, 60, 60);
+
 			if (xPos + 180 < badXPos3 + 200 && xPos + 180 > badXPos3)
 			{
 				if (yPos<badYPos3 + 202 && yPos>badYPos3)
@@ -382,7 +388,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 
-		StretchBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, mem1dc, 0, 0, c.right, c.bottom, SRCCOPY);
+		BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
 
 		DeleteObject(hBitmap);
 		DeleteDC(mem1dc);
@@ -461,38 +467,45 @@ void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut)
 
 	img->Draw(hdc, posx, posy, 200, 200, 200 * (animCut - 1), 200 * 1, 200, 200);
 }
-void cal_movement(DIR* dir, int* posx, int* posy, bool* input)
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle)
 {
-	POINT offset;
+	POINT move;
 
 	if (input[VK_LEFT] == input[VK_RIGHT])
-		offset.x = 0.f;
+		move.x = 0.f;
 	else if (input[VK_LEFT])
 	{
+		*idle = false;
 		*dir = DIR_LEFT;
-		offset.x = -10.f;
+		move.x = -10.f;
 	}
 	else
 	{
+		*idle = false;
 		*dir = DIR_RIGHT;
-		offset.x = 10.f;
+		move.x = 10.f;
 	}
 
 
 	if (input[VK_UP] == input[VK_DOWN])
-		offset.y = 0.f;
+		move.y = 0.f;
 	else if (input[VK_UP])
 	{
+		*idle = false;
 		*dir = DIR_UP;
-		offset.y = -10.f;
+		move.y = -10.f;
 	}
 	else
 	{
+		*idle = false;
 		*dir = DIR_DOWN;
-		offset.y = 10.f;
+		move.y = 10.f;
 	}
 
-	*posx += offset.x;
-	*posy += offset.y;
+	if (input[VK_UP] == input[VK_DOWN] == input[VK_LEFT] == input[VK_RIGHT])
+		*idle = true;
+
+	*posx += move.x;
+	*posy += move.y;
 }
 

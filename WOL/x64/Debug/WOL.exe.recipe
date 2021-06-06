@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <ProjectOutputs>C:\Users\윤은지\OneDrive\Desktop\윈플기말텀프\Wizard_Of_Legend\x64\Debug\WOL.exe</ProjectOutputs>
-  <ContentFiles></ContentFiles>
-  <SatelliteDlls></SatelliteDlls>
-  <NonRecipeFileRefs></NonRecipeFileRefs>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\GitHub\Wizard_Of_Legend\x64\Debug\WOL.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
 </Project>
