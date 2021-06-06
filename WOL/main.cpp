@@ -41,22 +41,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 }
 
 void create_stone_map(HDC hdc, CImage* img);
-void animation(HDC hdc, CImage* img, int posx, int posy, int animCut);
-void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut);
-void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut);
+void animation(HDC mainHdc, HDC subHdc, CImage* img, int posx, int posy, int animCut, TYPE type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input,bool* idle);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
-	HDC hdc;
+	HDC hdc, memdc;
 	static RECT c;
 	static POINT mouse;
 	HBRUSH hBrush, oldBrush;
 	HPEN hPen, oldPen;
 	static bool keyLayout[256];
 
-	HDC mem1dc, mem2dc;
 	static CImage Logo,Target;
 	static CImage StoneTile;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
@@ -67,7 +64,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static int animxPos, animyPos;
 	static int bad3AnimxPos, bad3AnimyPos, bad3attack;
 	static SCENE sceneNow;
-	HBITMAP hBitmap, hBit, oldBit, oldBit2;
+	HBITMAP hBitmap;
 
 	static bool isIdle;
 	static DIR dir_pl, dir_boss, dir_mon;
@@ -106,6 +103,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		dir_pl = DIR_DOWN;
 		isIdle = true;
 		GetClientRect(hWnd, &c);
+		ShowCursor(false);
 
 		break;
 	}
@@ -254,7 +252,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				sceneNow = SCENE_STAGE;
 				SetTimer(hWnd, 1, 50, NULL);
 				SetTimer(hWnd, 2, 20, NULL);
-
+				//Logo.ReleaseDC();
 			}
 		}
 
@@ -302,106 +300,92 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_PAINT:
 	{
-		//GetClientRect(hWnd, &c);
 		hdc = BeginPaint(hWnd, &ps);
 
 		hBitmap = CreateCompatibleBitmap(hdc, c.right, c.bottom);
-		mem1dc = CreateCompatibleDC(hdc);
-		mem2dc = CreateCompatibleDC(mem1dc);
-
-		hBit = CreateCompatibleBitmap(hdc, c.right, c.bottom);
-		oldBit = (HBITMAP)SelectObject(mem1dc, hBit);
-		oldBit2 = (HBITMAP)SelectObject(mem2dc, hBitmap);
-
-
-		StretchBlt(mem1dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, mem2dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SRCCOPY);
+		memdc = CreateCompatibleDC(hdc);
+		SelectObject(memdc, hBitmap);
+		
+		//StretchBlt(mem1dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, mem2dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SRCCOPY);
 
 		if (SCENE_LOGO == sceneNow)
 		{
 			int w = Logo.GetWidth();
 			int h = Logo.GetHeight();
-			Logo.Draw(mem2dc, 0, 0, c.right, c.bottom, 0, 0, w, h);
-			BitBlt(mem1dc, 0, 0, c.right, c.bottom, mem2dc, 0, 0, SRCCOPY);
+			Logo.Draw(memdc, 0, 0, c.right, c.bottom, 0, 0, w, h);
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			create_stone_map(mem2dc, &StoneTile);// 캐릭터 주위로 검은박스
-			create_stone_map(mem1dc, &StoneTile);// 캐릭터 주위에만 타일
-
+			create_stone_map(memdc, &StoneTile);// 캐릭터 주위로 검은박스
+			//BitBlt(memdc, 0, 0, c.right, c.bottom, memdc1, 0, 0, SRCCOPY);
+			//create_stone_map(mem1dc, &StoneTile);// 캐릭터 주위에만 타일
+			
 			//몬스터를 랜덤하게 이동할때 쓰이는 변수
 			/*if (howManyMove % 10 == 0)
 				whereToGo = direction(gen);*/
-
-			Target.Draw(mem2dc, mouse.x - 30, mouse.y - 30, mouse.x + 30, mouse.y + 30, 0, 0, 60, 60);
-
+			//SelectObject(memdc, hBitmap);
 			if (xPos + 180 < badXPos3 + 200 && xPos + 180 > badXPos3)
 			{
 				if (yPos<badYPos3 + 202 && yPos>badYPos3)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (yPos + 180 < badYPos3 + 202 && yPos + 180 > badYPos3)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (badYPos3<yPos + 182 && badYPos3>yPos)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (badYPos3 + 202 < yPos + 182 && badYPos3 + 202 > yPos)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (left == TRUE)
-					animationBad3(mem2dc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos);
+					animation(hdc, memdc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 				else
-					animationBad3(mem2dc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos);
+					animation(hdc, memdc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 
 			}
 			else if (badXPos3 + 200 < xPos + 180 && badXPos3 + 200 >= xPos)
 			{
 				if (yPos<badYPos3 + 202 && yPos>badYPos3)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (yPos + 180 < badYPos3 + 202 && yPos + 180 > badYPos3)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (badYPos3<yPos + 182 && badYPos3>yPos)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (badYPos3 + 202 < yPos + 182 && badYPos3 + 202 > yPos)
-					animationBad3attack(mem2dc, &SwordmanAttack, badXPos3, badYPos3, bad3attack);
+					animation(hdc, memdc, &SwordmanAttack, badXPos3, badYPos3, bad3attack, TYPE_SWORD_ATTACK);
 				else if (left == TRUE)
-					animationBad3(mem2dc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos);
+					animation(hdc, memdc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 				else
-					animationBad3(mem2dc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos);
+					animation(hdc, memdc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 			}
 			else if (left == TRUE)
-				animationBad3(mem2dc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos);
+				animation(hdc, memdc, &SwordmanLeft, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 			else
-				animationBad3(mem2dc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos);
+				animation(hdc, memdc, &SwordmanRight, badXPos3, badYPos3, bad3AnimxPos, TYPE_SWORD);
 
 
 			//animation(mem2dc, &ArcherLeft, badXPos3, badYPos3, 1);
 
 			if (DIR_DOWN == dir_pl)
-				animation(mem2dc, &PlayerFront, xPos, yPos, animxPos);
+				animation(hdc,memdc, &PlayerFront, xPos, yPos, animxPos, TYPE_PLAYER);
 			if (DIR_UP == dir_pl)
-				animation(mem2dc, &PlayerBack, xPos, yPos, animxPos);
+				animation(hdc, memdc, &PlayerBack, xPos, yPos, animxPos, TYPE_PLAYER);
 			if (DIR_LEFT == dir_pl)
-				animation(mem2dc, &PlayerLeft, xPos, yPos, animxPos);
+				animation(hdc, memdc, &PlayerLeft, xPos, yPos, animxPos, TYPE_PLAYER);
 			if (DIR_RIGHT == dir_pl)
-				animation(mem2dc, &PlayerRight, xPos, yPos, animxPos);
+				animation(hdc, memdc, &PlayerRight, xPos, yPos, animxPos, TYPE_PLAYER);			
 
-
-			//BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY); // 메모리dc에 저장된 이미지를 고속으로 화면에 띄우는 역할
-			TransparentBlt(mem1dc, 0, 0, c.right, c.bottom, mem2dc, 0, 0, c.right, c.bottom, RGB(255, 0, 255));
+			Target.TransparentBlt(memdc, mouse.x - 30, mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // 마우스
 		}
-
-
-		BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
+		BitBlt(hdc, 0, 0, c.right, c.bottom, memdc, 0, 0, SRCCOPY);
 
 		DeleteObject(hBitmap);
-		DeleteDC(mem1dc);
-		DeleteObject(hBit);
-		DeleteDC(mem2dc);
+		DeleteDC(memdc);
 		EndPaint(hWnd, &ps);
 	}
 	break;
 	case WM_DESTROY:
 		KillTimer(hWnd, 1);
 		KillTimer(hWnd, 2);
-		
-		Logo.ReleaseDC();
+
+		Target.ReleaseDC();
 		StoneTile.ReleaseDC();
 
 		PlayerFront.ReleaseDC();
@@ -417,7 +401,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SwordmanLeft.ReleaseDC();
 		SwordmanRight.ReleaseDC();
 		SwordmanAttack.ReleaseDC();
-		
+
 		PostQuitMessage(0);
 		break;
 	}
@@ -428,8 +412,6 @@ void create_stone_map(HDC hdc, CImage* img)
 {
 	int w = img->GetWidth();
 	int h = img->GetHeight();
-
-
 
 	for (int i = 0; i < 3; ++i)
 		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
@@ -446,27 +428,25 @@ void create_stone_map(HDC hdc, CImage* img)
 
 }
 
-void animation(HDC hdc, CImage* img, int posx, int posy, int animCut)
+void animation(HDC mainHdc, HDC subHdc, CImage* img, int posx, int posy, int animCut, TYPE type)
 {
 	int w = img->GetWidth();
 	int h = img->GetHeight();
 
-	img->Draw(hdc, posx, posy, 180, 182, 180 * (animCut - 1), 182 * 1, 180, 182);
+	if (TYPE_PLAYER == type)
+	{
+		img->TransparentBlt(subHdc, posx, posy, 180, 182, 180 * (animCut - 1), 182 * 1, 180, 182, RGB(255, 0, 255));
+	}
+	else if (TYPE_SWORD == type)
+	{
+		img->TransparentBlt(subHdc, posx, posy, 200, 202, 200 * (animCut - 1), 202 * 1, 200, 202, RGB(255, 0, 255));
+	}
+	else if (TYPE_SWORD_ATTACK == type)
+	{
+		img->TransparentBlt(subHdc, posx, posy, 200, 200, 200 * (animCut - 1), 200 * 1, 200, 200, RGB(255, 0, 255));
+	}
 }
-void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut)
-{
-	int w = img->GetWidth();
-	int h = img->GetHeight();
 
-	img->Draw(hdc, posx, posy, 200, 202, 200 * (animCut - 1), 202 * 1, 200, 202);
-}
-void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut)
-{
-	int w = img->GetWidth();
-	int h = img->GetHeight();
-
-	img->Draw(hdc, posx, posy, 200, 200, 200 * (animCut - 1), 200 * 1, 200, 200);
-}
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle)
 {
 	POINT move;
