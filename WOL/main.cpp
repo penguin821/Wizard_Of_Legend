@@ -40,8 +40,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut);
-void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut);
+void create_stone_map(HDC hdc, CImage* img);
+void animation(HDC hdc, CImage* img, int posx, int posy, int animCut);
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -51,31 +52,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static POINT mouse;
 	HBRUSH hBrush, oldBrush;
 	HPEN hPen, oldPen;
+	static bool keyLayout[256];
 
 	HDC mem1dc;
-	static CImage Logo, Img, ImgSprite;
+	static CImage Logo;
+	static CImage StoneTile;
+	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static int xPos, yPos;
 	static int animxPos, animyPos;
-	static int w, h;
-	static int sceneNow;
+	static SCENE sceneNow;
 	HBITMAP hBitmap;
-	static int badXPos3, badYPos3;
-	static int bad3AnimxPos, bad3AnimyPos, bad3attack;
-	static bool left = TRUE;
+
+	static bool isIdle;
+	static DIR dir_pl, dir_boss, dir_mon;
 
 	switch (uMsg)
 	{
 	case WM_CREATE: // 첫 초기화
 	{
 		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
-		//Img.Load(L"bmp_chu.bmp");
-		ImgSprite.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
+		StoneTile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stonetile.bmp");
+		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
+		PlayerBack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\BACK_COMPLETE.bmp");
+		PlayerLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\LEFT_COMPLETE.bmp");
+		PlayerRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\RIGHT_COMPLETE.bmp");
 
 		xPos = 0, yPos = 0;
 		animxPos = 1;
-		sceneNow = 0;
-
-		SetTimer(hWnd, 1, 100, NULL);
+		sceneNow = SCENE_LOGO;
+		dir_pl = DIR_DOWN;
+		isIdle = true;
 		break;
 	}
 	break;
@@ -103,73 +109,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case 1:
 		{
-			if (10 == animxPos)
-				animxPos = 1;
-			else
-				animxPos += 1;
+			cal_movement(&dir_pl, &xPos, &yPos, keyLayout);
+			if (!isIdle)
+			{
+				if (10 == animxPos)
+					animxPos = 1;
+				else
+					animxPos += 1;
+			}
 			//yPos += 5; 
 			InvalidateRect(hWnd, NULL, FALSE);
 		}
-
-		case 2:
-			//몬스터를 랜덤하게 이동
-			//switch (whereToGo)
-			//{
-			//case 0://up
-			//	if (c.top > badYPos3)
-			//		whereToGo = 1;
-			//	else
-			//	{
-			//		badYPos3 -= 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 1://down
-			//	if (c.bottom < badYPos3+100)
-			//		whereToGo = 0;
-			//	else
-			//	{
-			//		badYPos3 += 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 2://right
-			//	if (c.right < badYPos3+50)
-			//		whereToGo = 3;
-			//	else
-			//	{
-			//		badXPos3 += 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 3://left
-			//	if (c.left > badYPos3)
-			//		whereToGo = 2;
-			//	else
-			//	{
-			//		badXPos3 -= 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//}
-
-			if (xPos < badXPos3)
-			{
-				badXPos3 -= 1;
-				left = TRUE;
-			}
-			else if (xPos > badXPos3)
-			{
-				badXPos3 += 1;
-				left = FALSE;
-			}
-			if (yPos < badYPos3)
-				badYPos3 -= 1;
-			else if (yPos > badYPos3)
-				badYPos3 += 1;
-
-			InvalidateRect(hWnd, NULL, FALSE);
-			break;
 
 		}
 	}
@@ -199,23 +149,56 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_KEYDOWN:
 	{
+		if (SCENE_LOGO == sceneNow)
+		{
+			if (wParam)
+			{
+				sceneNow = SCENE_STAGE;
+				SetTimer(hWnd, 1, 50, NULL);
+			}
+		}
 		if (VK_LEFT == wParam)
 		{
-			xPos -= 5;
+			keyLayout[VK_LEFT] = 1;
+			isIdle = false;
 		}
 		if (VK_RIGHT == wParam)
 		{
-			xPos += 5;
+			keyLayout[VK_RIGHT] = 1;
+			isIdle = false;
 		}
 		if (VK_UP == wParam)
 		{
-			yPos -= 5;
+			keyLayout[VK_UP] = 1;
+			isIdle = false;
 		}
 		if (VK_DOWN == wParam)
 		{
-			yPos += 5;
+			keyLayout[VK_DOWN] = 1;
+			isIdle = false;
 		}
 	}
+	break;
+	case WM_KEYUP:
+	{
+		if (VK_LEFT == wParam)
+		{
+			keyLayout[VK_LEFT] = 0;
+		}
+		if (VK_RIGHT == wParam)
+		{
+			keyLayout[VK_RIGHT] = 0;
+		}
+		if (VK_UP == wParam)
+		{
+			keyLayout[VK_UP] = 0;
+		}
+		if (VK_DOWN == wParam)
+		{
+			keyLayout[VK_DOWN] = 0;
+		}
+	}
+	break;
 	case WM_PAINT:
 	{
 		GetClientRect(hWnd, &c);
@@ -226,20 +209,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if (SCENE_LOGO == sceneNow)
 		{
-			w = Logo.GetWidth();
-			h = Logo.GetHeight();
+			int w = Logo.GetWidth();
+			int h = Logo.GetHeight();
 			Logo.Draw(mem1dc, 0, 0, c.right, c.bottom, 0, 0, w, h);
 			BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
-			//TransparentBlt(hdc, 0, 0, 180, 182, mem1dc, 180 * (animxPos - 1), 182 * 1, 180, 182, RGB(255, 0, 255));
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			w = Img.GetWidth();
-			h = Img.GetHeight();
-			//Img.Draw(mem1dc, 0, 0, c.right, c.bottom, 0, 0, w, h);
-			ImgSprite.Draw(mem1dc, xPos, yPos, 180, 182, 180 * (animxPos - 1), 182 * 1, 180, 182);
-			BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY);
-			TransparentBlt(hdc, 0, 0, 180, 182, mem1dc, 180 * (animxPos - 1), 182 * 1, 180, 182, RGB(255, 0, 255));
+			create_stone_map(mem1dc, &StoneTile);
+			create_stone_map(mem2dc, &StoneTile);
+
+			if (DIR_DOWN == dir_pl)
+				animation(mem1dc, &PlayerFront, xPos, yPos, animxPos);
+			if (DIR_UP == dir_pl)
+				animation(mem1dc, &PlayerBack, xPos, yPos, animxPos);
+			if (DIR_LEFT == dir_pl)
+				animation(mem1dc, &PlayerLeft, xPos, yPos, animxPos);
+			if (DIR_RIGHT == dir_pl)
+				animation(mem1dc, &PlayerRight, xPos, yPos, animxPos);
+
+			//BitBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, SRCCOPY); // 메모리dc에 저장된 이미지를 고속으로 화면에 띄우는 역할
+			TransparentBlt(hdc, 0, 0, c.right, c.bottom, mem1dc, 0, 0, c.right, c.bottom, RGB(255, 0, 255));
 		}
 
 		DeleteObject(hBitmap);
@@ -254,17 +244,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
-void animationBad3(HDC hdc, CImage* img, int posx, int posy, int animCut)
+
+void create_stone_map(HDC hdc, CImage* img)
 {
 	int w = img->GetWidth();
 	int h = img->GetHeight();
 
-	img->Draw(hdc, posx, posy, 200, 202, 200 * (animCut - 1), 202 * 1, 200, 202);
+	img->Draw(hdc, 0, 0, w / 3, h / 4, 0, 0, w / 3, h / 4);
+	img->Draw(hdc, w / 3, 0, w / 3, h / 4, w / 3, h / 4, w / 3, h / 4);
 }
-void animationBad3attack(HDC hdc, CImage* img, int posx, int posy, int animCut)
+
+void animation(HDC hdc, CImage* img, int posx, int posy, int animCut)
 {
 	int w = img->GetWidth();
 	int h = img->GetHeight();
 
-	img->Draw(hdc, posx, posy, 200, 200, 200 * (animCut - 1), 200 * 1, 200, 200);
+	img->Draw(hdc, posx, posy, 180, 182, 180 * (animCut - 1), 182 * 1, 180, 182);
+}
+
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input)
+{
+	POINT offset;
+
+	if (input[VK_LEFT] == input[VK_RIGHT])
+		offset.x = 0.f;
+	else if (input[VK_LEFT])
+	{
+		*dir = DIR_LEFT;
+		offset.x = -10.f;
+	}
+	else
+	{
+		*dir = DIR_RIGHT;
+		offset.x = 10.f;
+	}
+
+
+	if (input[VK_UP] == input[VK_DOWN])
+		offset.y = 0.f;
+	else if (input[VK_UP])
+	{
+		*dir = DIR_UP;
+		offset.y = -10.f;
+	}
+	else
+	{
+		*dir = DIR_DOWN;
+		offset.y = 10.f;
+	}
+
+	*posx += offset.x;
+	*posy += offset.y;
 }
