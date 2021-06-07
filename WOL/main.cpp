@@ -270,25 +270,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if ('a' == wParam || 'A' == wParam)
+        if (wParam == 0x41)//A key
         {
             keyLayout[VK_LEFT] = 1;
             isIdle = false;
             check_collision(&pl, &sw);
         }
-        if ('d' == wParam || 'D' == wParam)
+        if (wParam == 0x44)//D key
         {
             keyLayout[VK_RIGHT] = 1;
             isIdle = false;
             check_collision(&pl, &sw);
         }
-        if ('w' == wParam || 'W' == wParam)
+        if (wParam== 0x57)//W key
         {
             keyLayout[VK_UP] = 1;
             isIdle = false;
             check_collision(&pl, &sw);
         }
-        if ('s' == wParam || 'S' == wParam)
+        if (wParam== 0x53 )//S key
         {
             keyLayout[VK_DOWN] = 1;
             isIdle = false;
@@ -298,19 +298,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break;
     case WM_KEYUP:
     {
-        if ('a' == wParam || 'A' == wParam)
+        if (wParam== 0x41)//A key
         {
             keyLayout[VK_LEFT] = 0;
         }
-        if ('d' == wParam || 'D' == wParam)
+        if (wParam == 0x44)//D key
         {
             keyLayout[VK_RIGHT] = 0;
         }
-        if ('w' == wParam || 'W' == wParam)
+        if (wParam == 0x57)//W key
         {
             keyLayout[VK_UP] = 0;
         }
-        if ('s' == wParam || 'S' == wParam)
+        if (wParam == 0x53)//S key
         {
             keyLayout[VK_DOWN] = 0;
         }
