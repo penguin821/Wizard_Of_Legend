@@ -327,8 +327,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         hdc = BeginPaint(hWnd, &ps);
 
-       // hBitmap = CreateCompatibleBitmap(hdc, WORLD_WIDTH, WORLD_HEIGHT);
-        hBitmap = CreateCompatibleBitmap(hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
+        hBitmap = CreateCompatibleBitmap(hdc, WORLD_WIDTH, WORLD_HEIGHT);
         memdc = CreateCompatibleDC(hdc);
         SelectObject(memdc, hBitmap);
 
@@ -391,15 +390,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 winposX = 0;
             if (winposY < 0)
                 winposY = 0;
-           // hBitmap = CreateCompatibleBitmap(hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
-            if (winposX > WINDOW_WIDTH)
-                winposX = 0;
-            if (winposX > WINDOW_HEIGHT)
-                winposY = 0;
-           /* if (winposX > WORLD_WIDTH)
+            if (winposX > WORLD_WIDTH)
                 winposX = 0;
             if (winposX > WORLD_HEIGHT)
-                winposY = 0;*/
+                winposY = 0;
 
             Target.TransparentBlt(memdc, winposX + mouse.x - 30, winposY + mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // ¸¶¿ì½º
             BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
