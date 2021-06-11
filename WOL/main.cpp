@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-void create_stone_map(HDC hdc, CImage* img);
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7);
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle);
@@ -58,7 +58,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static bool keyLayout[256];
 
 	static CImage Logo, Target, Summon;
-	static CImage StoneTile;
+	static CImage StoneTile,MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
@@ -86,6 +86,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		// Map
 		StoneTile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stonetile.bmp");
+		MAPTILE_1_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_1_2.bmp");
+		MAPTILE_2_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_2_1.bmp");
+		MAPTILE_2_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_2_2.bmp");
+		MAPTILE_3_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_3_1.bmp");
+		MAPTILE_3_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_3_2.bmp");
+		MAPTILE_4_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_4_1.bmp");
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -422,7 +428,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			create_stone_map(memdc, &StoneTile);
+			create_stone_map(memdc, &StoneTile,&MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1);
 
 			//몬스터를 랜덤하게 이동할때 쓰이는 변수
 			/*if (howManyMove % 10 == 0)
@@ -508,13 +514,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-void create_stone_map(HDC hdc, CImage* img)
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7)
 {
 	int PATTERN_SIZE = 8;
 	int w = img->GetWidth();
 	int h = img->GetHeight();
 
-	for (int i = 0; i < PATTERN_SIZE; ++i)
+	int w2 = img->GetWidth();
+	int h2 = img->GetHeight();
+
+	int w3 = img->GetWidth();
+	int h3 = img->GetHeight();
+
+	int w4 = img->GetWidth();
+	int h4 = img->GetHeight();
+
+	int w5 = img->GetWidth();
+	int h5 = img->GetHeight();
+
+	int w6 = img->GetWidth();
+	int h6 = img->GetHeight();
+
+	int w7 = img->GetWidth();
+	int h7 = img->GetHeight();
+
+	/*for (int i = 0; i < PATTERN_SIZE; ++i)
 		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
 	img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
 
@@ -524,9 +548,24 @@ void create_stone_map(HDC hdc, CImage* img)
 
 	for (int i = 0; i < PATTERN_SIZE; ++i)
 		img->Draw(hdc, w * i, h, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3, h, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
+	img->Draw(hdc, w * 3, h, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);*/
 
+	for (int i = 0; i < 7; ++i)
+		img5->Draw(hdc, i*(w5-10), 100, w5, h5, 0, 310, w5, 350);//312 365   270  310                   
 
+	/*for(int i=0;i<3;++i)
+		img->Draw(hdc, i*w, 183, w, h/4*3+183, 0, 0, w, h/4*3);*/
+	for (int i = 0; i < 3; ++i)
+	{
+		img->Draw(hdc, w * i, 183, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
+		img3->Draw(hdc, (w3-10) * i, 183 + h, w3, h3, 0, 0, w3, h3);
+	}
+	//img3->Draw(hdc, w* 3, 100, w3, h3, 0, 0, w3,145);//145
+	img4->Draw(hdc, w * 3, 180, w4, h4, 0, 0, 250, 210);//270 380
+	img4->Draw(hdc, w * 3, 180+h4, w4, h4, 0, 0, 250, 210);//270 380
+	img3->Draw(hdc, (w3 - 10) * 3, 183 + h,w3*0.1,h3,0,0,50,h3);//130 180
+
+	//img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
 }
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
