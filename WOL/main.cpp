@@ -551,6 +551,10 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	int w10 = img10->GetWidth();
 	int h10 = img10->GetHeight();
 
+	for(int i=0;i<5;++i)
+		img3->Draw(hdc, 1000, 905+h3/3*i, w3, 150, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000-w3, 905 + h3 / 3 * 3, w3, 150, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3+100, w3, 150, 0, 0, w3, 150);
 	/*for (int i = 0; i < PATTERN_SIZE; ++i)
 		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
 	img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
@@ -613,6 +617,8 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	//img6->Draw(hdc, 1280 + w8 , 1010, w8, h8, 0, 0, w8, h8);
 
 	//img10->Draw(hdc,0, 0, 200, h10-200, 0, 200, 250, h10);
+	
+
 	img10->Draw(hdc, 0, 900, w10, h10 , 0, 200, 200, h10);//-250 200-
 	img10->Draw(hdc, 200, 900, w10, h10, 30, 200, 150, h10);//-250 200-
 	img10->Draw(hdc, 200+w10, 900, w10, h10, 30, 200, 150, h10);//-250 200-
@@ -625,6 +631,9 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	}
 	//img4->Draw(hdc, 1280, 900 + h10 / 2 - 40+w, 20, h / 4 * 3, 0, 0, 20, h);
 	//for(int i=0;i<2;++i)
+
+	
+
 		img4->Draw(hdc, 1280, 1010, 20, h / 4 * 3, 0, 0, 20, h);
 		img8->Draw(hdc,1140, 910+h4,w8/2, h8, 0, 0, w8/2, h8);
 		img4->Draw(hdc, 1140, 910 + h4, 20, h / 8 * 3, 0, 0, 20, h/2);
@@ -633,6 +642,8 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 		
 		for(int i=0;i<7;++i)
 			img8->Draw(hdc, 860-i*w8/2, 900 + h4*1.5+ h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
+
+		
 
 	/*	for(int i=0;i<7;++i)
 			img8->Draw(hdc, w4*i, 905 + h4 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);*/
