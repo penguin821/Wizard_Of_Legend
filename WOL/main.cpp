@@ -575,7 +575,7 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 		img5->Draw(hdc, i * (w - 10), 100, w * 1.09, h, 0, 310, w, 350);//312 365   270  310                   
 
 
-	//Æ¢¾î³ª°£ ÀÜµð¹ç ¼öÁ¤ ¿äÇÔ
+	//¿ÞÂÊ ÀÜµð¹ç
 	for (int i = 0; i < 3; ++i)
 	{
 		img->Draw(hdc, w * i, 183, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
@@ -634,6 +634,21 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 
 	for (int i = 0; i < 7; ++i)
 		img8->Draw(hdc, 860 - i * w8 / 2, 900 + h4 * 1.5 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
+
+	//¿ÞÂÊ ³­°£
+	for (int i = 0; i < 4; ++i)
+		img4->Draw(hdc, w * 3 + w + 170 + w + 110+400, 102 + h4 * i+200, 20, h, 0, 0, 20, h);
+	//À­ ³­°£
+		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400+20, 300, w * 1.09, h, 0, 310, w, 350);//312 365   270  310  
+		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20+340, 300, w * 1.09-50, h, 0, 310, w-50, 350);//312 365   270  310  
+	//½ºÅæ¸Ê
+	for(int i=0;i<2;++i)
+		img->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20 + i * w5, 300+80, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
+	//ÀÜµð¹ç
+	for(int i=0;i<2;++i)
+		img3->Draw(hdc, 2320+w3*i, 800, w3+10, 150, 0, 0, w3, 150);
+
+	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
 }
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
