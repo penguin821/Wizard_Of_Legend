@@ -41,7 +41,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 }
 
 void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
-	,CImage* img11);
+	,CImage* img11, CImage* img12, CImage* img13, CImage* img14, CImage* img15, CImage* img16);
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle);
@@ -60,6 +60,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	static CImage Logo, Target, Summon;
 	static CImage StoneTile, MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1, borderWidth, statue, horizontalWell,chairLeft;
+	static CImage treeLeft, treeRight, treeLeftPurple, treeRightPurple, insignia;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
@@ -97,6 +98,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
 		horizontalWell.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\horizontalWell.bmp");
 		chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
+		treeLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeft.bmp");
+		treeRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRight.bmp");
+		treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
+		treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
+		insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -434,7 +440,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		else if (SCENE_STAGE == sceneNow)
 		{
 			create_stone_map(memdc, &StoneTile, &MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1, &borderWidth, &statue, &horizontalWell,
-				&chairLeft);
+				&chairLeft,&treeLeft,&treeRight,&treeLeftPurple,&treeRightPurple,&insignia);
 
 			//몬스터를 랜덤하게 이동할때 쓰이는 변수
 			/*if (howManyMove % 10 == 0)
@@ -521,7 +527,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
-	, CImage* img11)
+	, CImage* img11, CImage* img12, CImage* img13, CImage* img14, CImage* img15, CImage* img16)
 {
 	/*for (int i = 0; i < PATTERN_SIZE; ++i)
 		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
@@ -567,6 +573,21 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 
 	int w11 = img11->GetWidth();
 	int h11 = img11->GetHeight();
+
+	int w12 = img12->GetWidth();
+	int h12 = img12->GetHeight();
+
+	int w13 = img13->GetWidth();
+	int h13 = img13->GetHeight();
+
+	int w14 = img14->GetWidth();
+	int h14 = img14->GetHeight();
+
+	int w15 = img15->GetWidth();
+	int h15 = img15->GetHeight();
+
+	int w16 = img16->GetWidth();
+	int h16 = img16->GetHeight();
 
 	for (int i = 0; i < 2; ++i)
 		img3->Draw(hdc, 1000, 905 + h3 / 3 * i, w3 - 30, 150, 0, 0, w3, 150);
@@ -672,7 +693,10 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	img->Draw(hdc, 2420,1000+h10-200, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
 	//벤치
 	img11->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 +30, 102 + h4 + 400, w11, h11, 0, 0, w11, h11, RGB(255, 0, 255));
-	//img11->Draw(hdc, w * 3 + w + 170 + w + 110 + 400+100, 102 + h4 + 200, w11, h11, 0, 0, w11, h11);
+	//나무
+	img12->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 + 30+200, 102 + h4 + 50, w12, h12, 0, 0, w12, h12, RGB(255, 255, 255));
+	//휘장
+	img16->TransparentBlt(hdc,0, 0, w16, h16, 0, 0, w16, h16, RGB(255, 0, 255));
 	//어디가 맵의 끝자락인지
 	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
 }
