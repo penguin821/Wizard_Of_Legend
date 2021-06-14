@@ -40,7 +40,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10);
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
+	,CImage* img11);
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle);
@@ -58,7 +59,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static bool keyLayout[256];
 
 	static CImage Logo, Target, Summon;
-	static CImage StoneTile, MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1, borderWidth, statue, horizontalWell;
+	static CImage StoneTile, MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1, borderWidth, statue, horizontalWell,chairLeft;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
@@ -95,7 +96,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		borderWidth.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\borderWidth.bmp");
 		statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
 		horizontalWell.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\horizontalWell.bmp");
-
+		chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -432,7 +433,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			create_stone_map(memdc, &StoneTile, &MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1, &borderWidth, &statue, &horizontalWell);
+			create_stone_map(memdc, &StoneTile, &MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1, &borderWidth, &statue, &horizontalWell,
+				&chairLeft);
 
 			//몬스터를 랜덤하게 이동할때 쓰이는 변수
 			/*if (howManyMove % 10 == 0)
@@ -518,7 +520,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10)
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
+	, CImage* img11)
 {
 	/*for (int i = 0; i < PATTERN_SIZE; ++i)
 		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
@@ -561,6 +564,9 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 
 	int w10 = img10->GetWidth();
 	int h10 = img10->GetHeight();
+
+	int w11 = img11->GetWidth();
+	int h11 = img11->GetHeight();
 
 	for (int i = 0; i < 2; ++i)
 		img3->Draw(hdc, 1000, 905 + h3 / 3 * i, w3 - 30, 150, 0, 0, w3, 150);
@@ -638,6 +644,7 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	//왼쪽 난간
 	for (int i = 0; i < 4; ++i)
 		img4->Draw(hdc, w * 3 + w + 170 + w + 110+400, 102 + h4 * i+200, 20, h, 0, 0, 20, h);
+	
 	//윗 난간
 		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400+20, 300, w * 1.09, h, 0, 310, w, 350);//312 365   270  310  
 		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20+340, 300, w * 1.09-50, h, 0, 310, w-50, 350);//312 365   270  310  
@@ -646,8 +653,27 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 		img->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20 + i * w5, 300+80, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
 	//잔디밭
 	for(int i=0;i<2;++i)
-		img3->Draw(hdc, 2320+w3*i, 800, w3+10, 150, 0, 0, w3, 150);
-
+		for(int j=0;j<5;++j)
+			img3->Draw(hdc, 2320+w3*i, 800+150*j, w3+10, 150, 0, 0, w3, 150);
+	//오른쪽 난간
+	for (int i = 0; i < 4; ++i)
+		img4->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 660, 102 + h4 * i + 200, 20, h, 0, 0, 20, h);
+	//울타리
+	/*img8->Draw(hdc, 2420, 1000, w8 / 2, h8, 0, 0, w8 / 2, h8);
+	img8->Draw(hdc, 2420+w8/2, 1000, w8 / 2, h8, 0, 0, w8 / 2, h8);
+	img4->Draw(hdc, 2420, 1020 , 20, h / 8 * 3, 0, 0, 20, h / 2);
+	img4->Draw(hdc, 2420+w8-20, 1020, 20, h / 8 * 3, 0, 0, 20, h / 2);*/
+	img10->Draw(hdc, 2420 , 1000, w10, h10, 0, 200, 250, h10);//-250 200-
+	/*for (int i = 0; i < 3; ++i)
+	{
+		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
+		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w / 3 + 30, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
+	}*/
+	img->Draw(hdc, 2420,1000+h10-200, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
+	//벤치
+	img11->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 +30, 102 + h4 + 400, w11, h11, 0, 0, w11, h11, RGB(255, 0, 255));
+	//img11->Draw(hdc, w * 3 + w + 170 + w + 110 + 400+100, 102 + h4 + 200, w11, h11, 0, 0, w11, h11);
+	//어디가 맵의 끝자락인지
 	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
 }
 
