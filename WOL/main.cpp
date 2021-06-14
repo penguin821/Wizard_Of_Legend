@@ -630,8 +630,9 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 		img4->Draw(hdc, 1140, 910 + h4, 20, h / 8 * 3, 0, 0, 20, h/2);
 		img8->Draw(hdc, 1000, 905 + h4+h4/2, w8 / 2, h8, 0, 0, w8 / 2, h8);
 		img4->Draw(hdc, 1000, 905 + h4 + h4 / 2, 20, h / 8 * 3, 0, 0, 20, h / 2);
-
-		img8->Draw(hdc, 860, 900 + h4*1.5+ h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
+		
+		for(int i=0;i<7;++i)
+			img8->Draw(hdc, 860-i*w8/2, 900 + h4*1.5+ h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
 
 	/*	for(int i=0;i<7;++i)
 			img8->Draw(hdc, w4*i, 905 + h4 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);*/
