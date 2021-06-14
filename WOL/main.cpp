@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7,CImage* img8, CImage* img9,CImage* img10);
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10);
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle);
@@ -58,7 +58,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static bool keyLayout[256];
 
 	static CImage Logo, Target, Summon;
-	static CImage StoneTile,MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1,borderWidth,statue, horizontalWell;
+	static CImage StoneTile, MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1, borderWidth, statue, horizontalWell;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // ¸ó½ºÅÍ1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // ¸ó½ºÅÍ3
@@ -95,7 +95,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		borderWidth.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\borderWidth.bmp");
 		statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
 		horizontalWell.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\horizontalWell.bmp");
-		
+
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -432,7 +432,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			create_stone_map(memdc, &StoneTile,&MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1,&borderWidth,&statue,&horizontalWell);
+			create_stone_map(memdc, &StoneTile, &MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1, &borderWidth, &statue, &horizontalWell);
 
 			//¸ó½ºÅÍ¸¦ ·£´ýÇÏ°Ô ÀÌµ¿ÇÒ¶§ ¾²ÀÌ´Â º¯¼ö
 			/*if (howManyMove % 10 == 0)
@@ -518,8 +518,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7,CImage* img8,CImage* img9,CImage* img10)
+void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10)
 {
+	/*for (int i = 0; i < PATTERN_SIZE; ++i)
+		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
+	img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
+
+	for (int i = 0; i < PATTERN_SIZE; ++i)
+		img->Draw(hdc, w * i, h / 4 * 3, w, h / 4, 0, h / 4, w, h / 4);
+	img->Draw(hdc, w * 3, h / 4 * 3, w / 3 * 2, h / 4, 0, h / 4, w, h / 4);
+
+	for (int i = 0; i < PATTERN_SIZE; ++i)
+		img->Draw(hdc, w * i, h, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
+	img->Draw(hdc, w * 3, h, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);*/
 	int PATTERN_SIZE = 8;
 	int w = img->GetWidth();
 	int h = img->GetHeight();
@@ -551,109 +562,78 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	int w10 = img10->GetWidth();
 	int h10 = img10->GetHeight();
 
-	for(int i=0;i<5;++i)
-		img3->Draw(hdc, 1000, 905+h3/3*i, w3, 150, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000-w3, 905 + h3 / 3 * 3, w3, 150, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3+100, w3, 150, 0, 0, w3, 150);
-	/*for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
+	for (int i = 0; i < 2; ++i)
+		img3->Draw(hdc, 1000, 905 + h3 / 3 * i, w3 - 30, 150, 0, 0, w3, 150);
 
-	for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, h / 4 * 3, w, h / 4, 0, h / 4, w, h / 4);
-	img->Draw(hdc, w * 3, h / 4 * 3, w / 3 * 2, h / 4, 0, h / 4, w, h / 4);
+	img3->Draw(hdc, 1000, 905 + h3 / 3 * 2, w3 - 30, 70, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000, 905 + h3 / 3 * 2.5, w3 - 160, 130, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000, 905 + h3 / 3 * 3, w3 - 170, 80, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3, w3, 150, 0, 0, w3, 150);
+	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3 + 100, w3, 140, 0, 0, w3, 150);
 
-	for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, h, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3, h, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);*/
-
-	
 	for (int i = 0; i < 6; ++i)
-		img5->Draw(hdc, i*(w-10), 100, w*1.09, h, 0, 310, w, 350);//312 365   270  310                   
+		img5->Draw(hdc, i * (w - 10), 100, w * 1.09, h, 0, 310, w, 350);//312 365   270  310                   
 
-	/*for(int i=0;i<3;++i)
-		img->Draw(hdc, i*w, 183, w, h/4*3+183, 0, 0, w, h/4*3);*/
+
+	//Æ¢¾î³ª°£ ÀÜµð¹ç ¼öÁ¤ ¿äÇÔ
 	for (int i = 0; i < 3; ++i)
 	{
 		img->Draw(hdc, w * i, 183, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
 
-		for (int j = 0; j < 3; ++j)
+		for (int j = 0; j < 2; ++j)
 		{
-			img3->Draw(hdc, (w - 10) * i, 183 + h+j*h3, w, 200, 0, 0, w, 200);
-			img3->Draw(hdc, (w - 10) * i, 183 + h + 200+h3*j, w, h3 - 200, 0, 0, w, 200);
+			img3->Draw(hdc, (w - 10) * i, 183 + h + j * h3, w, 200, 0, 0, w, 200);
+			img3->Draw(hdc, (w - 10) * i, 183 + h + 200 + h3 * j, w, h3 - 200, 0, 0, w, 200);
 		}
 	}
-	//img3->Draw(hdc, w* 3, 100, w3, h3, 0, 0, w3,145);//145
-	img4->Draw(hdc, w * 3, 180, w, h, 0, 0, 250, 210);//270 380
-	img4->Draw(hdc, w * 3, 180+h, w, h, 0, 0, 250, 210);//270 380
+	img3->Draw(hdc, (w - 10) * 0, 183 + h + 3 * h3-415, w+55, 140, 0, 0, w, 140);
+	img3->Draw(hdc, (w - 10) * 1, 183 + h + 3 * h3-415, w+55, 140, 0, 0, w, 140);
 	
+	img4->Draw(hdc, w * 3, 180, w, h, 0, 0, 250, 210);//270 380
+	img4->Draw(hdc, w * 3, 180 + h, w, h, 0, 0, 250, 210);//270 380
 
-	//for(int i=0;i<3;++i)
-	//	img5->Draw(hdc, (w3 - 10) * 3+w3+20, 183+i*220 , w3 , h3, 0, 160, w5, 380);//130 180
 
 	for (int i = 0; i < 2; ++i)
 	{
-		img3->Draw(hdc, w * 3 + w +(w- 40)*i, 180, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç
-		img3->Draw(hdc, w * 3 + w +(w- 40)*i , 180 + h, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç ¹Ø¿¡
+		img3->Draw(hdc, w * 3 + w + (w - 40) * i, 180, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç
+		img3->Draw(hdc, w * 3 + w + (w - 40) * i, 180 + h, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç ¹Ø¿¡
 	}
-	//img3->Draw(hdc, (w3 - 10) * 3, 183 + h, w3 * 0.1, h3, 0, 0, 50, h3);//°¡¸²¸·
+
 	img3->Draw(hdc, (w - 10) * 3, 183 + h, w * 0.25, h, 0, 0, 50, h);//°¡¸²¸·
 
-	img->Draw(hdc, w * 3 + w +170, 180, w, h/4*3, 0, 0, w, h / 4*3);
-	img->Draw(hdc, w * 3 + w + 170+w, 180, w/3, h / 4*3, 0, 0, w/3, h / 4*3);
+	img->Draw(hdc, w * 3 + w + 170, 180, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
+	img->Draw(hdc, w * 3 + w + 170 + w, 180, w / 3, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
 
-	for(int i=0;i<2;++i)
-		img4->Draw(hdc, w * 3 + w + 170 + w+110, 102+h4*i, 20, h, 0, 0, 20, h);
+	for (int i = 0; i < 2; ++i)
+		img4->Draw(hdc, w * 3 + w + 170 + w + 110, 102 + h4 * i, 20, h, 0, 0, 20, h);
 	img4->Draw(hdc, w * 3 + w + 170 + w + 110, 70 + h4 * 2, 20, h, 0, 0, 20, h);
-	
-	
-	img9->TransparentBlt(hdc, w * 3 + w +120 + w, 180+w/2,146, 292, 0, 0, 146, 292, RGB(255, 0, 255)); // Á¶°¢»ó
 
-	//img8->Draw(hdc, 500, 180+h+h4,w8, h8, 0, 0,w8, h8);
-	
-	for(int i=0;i<2;++i)
-		img8->Draw(hdc, 1280+w8*i, 1010, w8, h8, 0, 0, w8, h8);
 
-	//img6->Draw(hdc, 1280 + w8 , 1010, w8, h8, 0, 0, w8, h8);
+	img9->TransparentBlt(hdc, w * 3 + w + 120 + w, 180 + w / 2, 146, 292, 0, 0, 146, 292, RGB(255, 0, 255)); // Á¶°¢»ó
 
-	//img10->Draw(hdc,0, 0, 200, h10-200, 0, 200, 250, h10);
-	
+	for (int i = 0; i < 2; ++i)
+		img8->Draw(hdc, 1280 + w8 * i, 1010, w8, h8, 0, 0, w8, h8);
 
-	img10->Draw(hdc, 0, 900, w10, h10 , 0, 200, 200, h10);//-250 200-
+
+	img10->Draw(hdc, 0, 900, w10, h10, 0, 200, 200, h10);//-250 200-
 	img10->Draw(hdc, 200, 900, w10, h10, 30, 200, 150, h10);//-250 200-
-	img10->Draw(hdc, 200+w10, 900, w10, h10, 30, 200, 150, h10);//-250 200-
-	img10->Draw(hdc, 100 + w10*2, 900, w10/2, h10, 30, 200, 200, h10);//-250 200-
+	img10->Draw(hdc, 200 + w10, 900, w10, h10, 30, 200, 150, h10);//-250 200-
+	img10->Draw(hdc, 100 + w10 * 2, 900, w10 / 2, h10, 30, 200, 200, h10);//-250 200-
 
 	for (int i = 0; i < 3; ++i)
 	{
-		img->Draw(hdc, i*w, 900 + h10 / 2 - 40, w+30, h / 4 * 3, 0, 0, w, h / 4 * 3);
-		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w / 3+30, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
+		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
+		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w / 3 + 30, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
 	}
-	//img4->Draw(hdc, 1280, 900 + h10 / 2 - 40+w, 20, h / 4 * 3, 0, 0, 20, h);
-	//for(int i=0;i<2;++i)
 
-	
+	img4->Draw(hdc, 1280, 1010, 20, h / 4 * 3, 0, 0, 20, h);
+	img8->Draw(hdc, 1140, 910 + h4, w8 / 2, h8, 0, 0, w8 / 2, h8);
+	img4->Draw(hdc, 1140, 910 + h4, 20, h / 8 * 3, 0, 0, 20, h / 2);
+	img8->Draw(hdc, 1000, 905 + h4 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
+	img4->Draw(hdc, 1000, 905 + h4 + h4 / 2, 20, h / 8 * 3, 0, 0, 20, h / 2);
 
-		img4->Draw(hdc, 1280, 1010, 20, h / 4 * 3, 0, 0, 20, h);
-		img8->Draw(hdc,1140, 910+h4,w8/2, h8, 0, 0, w8/2, h8);
-		img4->Draw(hdc, 1140, 910 + h4, 20, h / 8 * 3, 0, 0, 20, h/2);
-		img8->Draw(hdc, 1000, 905 + h4+h4/2, w8 / 2, h8, 0, 0, w8 / 2, h8);
-		img4->Draw(hdc, 1000, 905 + h4 + h4 / 2, 20, h / 8 * 3, 0, 0, 20, h / 2);
-		
-		for(int i=0;i<7;++i)
-			img8->Draw(hdc, 860-i*w8/2, 900 + h4*1.5+ h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
-
-		
-
-	/*	for(int i=0;i<7;++i)
-			img8->Draw(hdc, w4*i, 905 + h4 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);*/
-		//img4->Draw(hdc, 1280, 1010 +150, 20, h / 4 * 3, 0, 0, 20, h);
-	//img->Draw(hdc, 0, 900+h10, w, h, 0, 200, 200, h10);//-250 200-
-	//img->Draw(hdc, w * 3 + w + 170 + w, 900, w / 3, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
-	//img10->Draw(hdc, 0, 900, w10, h10, 125, 200, 250, h10);//-250 200-
-	//img4->Draw(hdc, 1280 + w8 , w8+50, 20, h, 0, 0, 20, h);
-	//img5->Draw(hdc, (w3 - 10) * 3 + w3 + 20, 183 , w3, h3, 0, 160, w5, 380);
-		
+	for (int i = 0; i < 7; ++i)
+		img8->Draw(hdc, 860 - i * w8 / 2, 900 + h4 * 1.5 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
 }
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
