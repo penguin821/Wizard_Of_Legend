@@ -40,11 +40,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	return Message.wParam;
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
-	,CImage* img11, CImage* img12, CImage* img13, CImage* img14, CImage* img15, CImage* img16);
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
-void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle);
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed);
+void boundary_correction(int* posx, int* posy, Character* ch);
 DIR check_collision(Character* a, Character* b);
 DIR check_collision(Character* a, Effect* b);
 
@@ -59,7 +58,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static bool keyLayout[256];
 
 	static CImage Logo, Target, Summon;
-	static CImage StoneTile, MAPTILE_1_2, MAPTILE_2_1, MAPTILE_2_2, MAPTILE_3_1, MAPTILE_3_2, MAPTILE_4_1, borderWidth, statue, horizontalWell,chairLeft;
+	static CImage StoneMap, statue, chairLeft;
 	static CImage treeLeft, treeRight, treeLeftPurple, treeRightPurple, insignia;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
@@ -71,10 +70,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HBITMAP hBitmap;
 	static vector<Effect> ice, ice_end;
 
-	static bool isIdle;
+	static bool isIdle, isPlayerAttack, isCooltime;
 	static int whereToGo = 4;
 	static int howManyMove = 0;
 	static int winposX, winposY, centerX, centerY;
+	static short speed_anim, speed_move, speed_attack;
 	switch (uMsg)
 	{
 	case WM_CREATE: // 첫 초기화
@@ -86,8 +86,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &c);
 		ShowCursor(false);
 		sceneNow = SCENE_LOGO;
+		speed_anim = 20;
+		speed_move = 40;
+		speed_attack = 150;
+		isCooltime = false;
 
 		// Map
+<<<<<<< HEAD
 		StoneTile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stonetile.bmp");
 		MAPTILE_1_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_1_2.bmp");
 		MAPTILE_2_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_2_1.bmp");
@@ -106,6 +111,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
 		bossMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\bossMap.png");
 		stage1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.png");
+=======
+		StoneMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
+		//statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
+		//chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
+		//treeLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeft.bmp");
+		//treeRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRight.bmp");
+		//treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
+		//treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
+		//insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
+>>>>>>> fbbcf048c027c430d217a95b60e5201e9539fa6b
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -113,21 +128,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PlayerLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\LEFT_COMPLETE.bmp");
 		PlayerRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\RIGHT_COMPLETE.bmp");
 		pl.posX = 1500, pl.posY = 1500, pl.animPosX = 1, pl.animPosY = 2;
-		pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100;
+		pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100, pl.moveSpeed = 15;
 		pl.dir = DIR_DOWN, pl.type = TYPE_PLAYER, pl.st = ST_IDLE;
 		isIdle = true;
 
 		// Monster
-		ArcherBowLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_LEFT.bmp");
-		ArcherBowRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_RIGHT.bmp");
-		ArcherLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_LEFT.bmp");
-		ArcherRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_RIGHT.bmp");
+		//ArcherBowLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_LEFT.bmp");
+		//ArcherBowRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_BOW_RIGHT.bmp");
+		//ArcherLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_LEFT.bmp");
+		//ArcherRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Archer\\ARCHER_RIGHT.bmp");
 
 		SwordmanLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_LEFT.bmp");
 		SwordmanRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_RIGHT.bmp");
 		SwordmanAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Swordman\\SWORDMAN_ATTACK.bmp");
 		sw.posX = 950, sw.posY = 500, sw.animPosX = 1, sw.animPosY = 2;
-		sw.sizeX = 200, sw.sizeY = 202, sw.hp = 100;
+		sw.sizeX = 200, sw.sizeY = 202, sw.hp = 100, sw.moveSpeed = 2;
 		sw.ef_sizeX = 200, sw.ef_sizeY = 200, sw.ef_animPosX = 1;
 		sw.type = TYPE_SWORD, sw.st = ST_IDLE;
 
@@ -159,69 +174,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 
-		case 1:
+		case TM_ANIMATION:
 		{
-			if (!keyLayout[VK_LEFT] && !keyLayout[VK_UP] && !keyLayout[VK_DOWN] && !keyLayout[VK_RIGHT])
-				pl.animPosY = 1;
-			cal_movement(&pl.dir, &pl.posX, &pl.posY, keyLayout, &isIdle);
-
-			centerX = pl.posX + pl.sizeX / 2;
-			centerY = pl.posY + pl.sizeY / 2;
-
-			winposX = centerX - WINDOW_WIDTH / 2;
-			winposY = centerY - WINDOW_HEIGHT / 2;
-			if (winposX < 0)
-				winposX = 0;
-			if (winposY < 0)
-				winposY = 0;
-			if (winposX > WORLD_WIDTH)
-				winposX = 0;
-			if (winposX > WORLD_HEIGHT)
-				winposY = 0;
-
-			if (1 == pl.animPosY)
-				pl.animPosX = 1;
+			if (1 == pl.animPosY) pl.animPosX = 1;
 			if (2 == pl.animPosY)
 			{
-				if (10 <= pl.animPosX)
+				if (10 <= pl.animPosX) pl.animPosX = 1;
+				else pl.animPosX += 1;
+			}
+			if (4 == pl.animPosY)
+			{
+				if (8 <= pl.animPosX)
+				{
 					pl.animPosX = 1;
-				else
-					pl.animPosX += 1;
+					pl.animPosY = 5;
+				}
+				else pl.animPosX += 1;
+			}
+			if (5 == pl.animPosY)
+			{
+				if (8 <= pl.animPosX)
+				{
+					pl.animPosX = 1;
+					pl.animPosY = 4;
+				}
+				else pl.animPosX += 1;
 			}
 			if (6 == pl.animPosY)
 			{
-				if (2 <= pl.animPosX)
-					pl.animPosX = 1;
-				else
-					pl.animPosX += 1;
+				if (2 <= pl.animPosX) pl.animPosX = 1;
+				else pl.animPosX += 1;
 			}
 
 			if (2 == sw.animPosY) // 왼쪽 이동
 			{
-				if (6 <= sw.animPosX)
-					sw.animPosX = 1;
-				else
-					sw.animPosX += 1;
+				if (6 <= sw.animPosX) sw.animPosX = 1;
+				else sw.animPosX += 1;
 			}
 			else if (3 == sw.animPosY) // 왼쪽 공격
 			{
-				if (3 <= sw.animPosX)
-					sw.animPosX = 1;
-				else
-					sw.animPosX += 1;
+				if (3 <= sw.animPosX) sw.animPosX = 1;
+				else sw.animPosX += 1;
 			}
 			else if (4 == sw.animPosY) // 왼쪽 이동
 			{
-				if (2 <= sw.animPosX)
-					sw.animPosX = 1;
-				else
-					sw.animPosX += 1;
+				if (2 <= sw.animPosX) sw.animPosX = 1;
+				else sw.animPosX += 1;
 			}
-
-			if (4 <= sw.ef_animPosX)
-				sw.ef_animPosX = 1;
-			else
-				sw.ef_animPosX += 1;
+			if (4 <= sw.ef_animPosX) sw.ef_animPosX = 1;
+			else sw.ef_animPosX += 1;
 
 			if (0 != ice.size())
 			{
@@ -229,9 +230,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (it->posX == it->endPosX && it->posY == it->endPosY)
 					{
-						//Effect temp={ it->endPosX ,it->endPosY ,it->endPosX ,it->endPosY }
-						//ice_end.emplace_back(it);
-						//animation(memdc, &IceParticle, a, EL_ICE_END);
+						Effect temp = { it->endPosX ,it->endPosY ,it->endPosX ,it->endPosY,
+							IceParticle.GetWidth() / 8,IceParticle.GetHeight(),1,1 };
+						ice_end.emplace_back(temp);
 						it = ice.erase(it);
 					}
 					else
@@ -240,10 +241,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						it->posX = it->posX * (1 - it->mid) + it->mid * it->endPosX;
 						it->posY = it->posY * (1 - it->mid) + it->mid * it->endPosY;
 
-						if (18 <= it->animPosX)
-							it->animPosX = 1;
-						else
-							it->animPosX += 1;
+						if (18 <= it->animPosX) it->animPosX = 1;
+						else it->animPosX += 1;
 						++it;
 					}
 				}
@@ -253,108 +252,97 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				InvalidateRect(hWnd, NULL, FALSE);
 			}
 
-			/*if (0 != ice_end.size())
+			if (0 != ice_end.size())
 			{
-			}*/
+				for (auto it = ice_end.begin(); it != ice_end.end();)
+				{
+						if (8 <= it->animPosX) it = ice_end.erase(it);
+						else 
+						{
+							it->animPosX += 1;
+							++it;
+						}
+				}
+			}
 		}
-		case 2:
-			//몬스터를 랜덤하게 이동
-			//switch (whereToGo)
-			//{
-			//case 0://up
-			//	if (c.top > badYPos3)
-			//		whereToGo = 1;
-			//	else
-			//	{
-			//		badYPos3 -= 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 1://down
-			//	if (c.bottom < badYPos3+100)
-			//		whereToGo = 0;
-			//	else
-			//	{
-			//		badYPos3 += 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 2://right
-			//	if (c.right < badYPos3+50)
-			//		whereToGo = 3;
-			//	else
-			//	{
-			//		badXPos3 += 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//case 3://left
-			//	if (c.left > badYPos3)
-			//		whereToGo = 2;
-			//	else
-			//	{
-			//		badXPos3 -= 10;
-			//		++howManyMove;
-			//	}
-			//	break;
-			//}
+		break;
+		case TM_MOVE:
+		{
+			if (!keyLayout[VK_LEFT] && !keyLayout[VK_UP] && !keyLayout[VK_DOWN] && !keyLayout[VK_RIGHT] && !keyLayout[VK_LBUTTON])
+				pl.animPosY = 1;
+			cal_movement(&pl.dir, &pl.posX, &pl.posY, keyLayout, pl.moveSpeed);
+
+			centerX = pl.posX + pl.sizeX / 2;
+			centerY = pl.posY + pl.sizeY / 2;
+
+			winposX = centerX - WINDOW_WIDTH / 2;
+			winposY = centerY - WINDOW_HEIGHT / 2;
+
+			// 결계 보정
+			boundary_correction(&winposX, &winposY, NULL);
+			boundary_correction(NULL, NULL, &pl);
+
 			sw.animPosY = 2;
 			if (pl.posX < sw.posX)
 			{
 				sw.dir = DIR_LEFT;
-				sw.posX -= 2;
+				sw.posX -= sw.moveSpeed;
 			}
 			else if (pl.posX > sw.posX)
 			{
 				sw.dir = DIR_RIGHT;
-				sw.posX += 2;
+				sw.posX += sw.moveSpeed;
 			}
 
 			if (pl.posY < sw.posY)
-				sw.posY -= 2;
+				sw.posY -= sw.moveSpeed;
 			else if (pl.posY > sw.posY)
-				sw.posY += 2;
+				sw.posY += sw.moveSpeed;
 			check_collision(&pl, &sw);
-
-			InvalidateRect(hWnd, NULL, FALSE);
-			break;
-
 		}
+		break;
+		case TM_ATTACK:
+		{
+			isCooltime = false;
+			if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !isCooltime)
+			{
+				int realMouseX = winposX + mouse.x;
+				int realMouseY = winposY + mouse.y;
+				if (EL_ICE == pl.el)
+				{
+					int w = IceAttack.GetWidth();
+					int h = IceAttack.GetHeight();
+					int start = rand() % 300 - 150;
+					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, EL_ICE };
+					ice.emplace_back(temp);
+				}
+				isCooltime = true;
+			}
+		}
+		break;
+		}
+		InvalidateRect(hWnd, NULL, FALSE);
+		break;
 	}
 	break;
 	case WM_LBUTTONDOWN:
 	{
 		mouse.x = LOWORD(lParam);
 		mouse.y = HIWORD(lParam);
-
-		int realMouseX = winposX + mouse.x;
-		int realMouseY = winposY + mouse.y;
-
-		if (EL_ICE == pl.el)
-		{
-			int w = IceAttack.GetWidth();
-			int h = IceAttack.GetHeight();
-			Effect temp = { pl.posX,pl.posY,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, EL_ICE };
-			ice.emplace_back(temp);
-		}
-
-		//X_vector = pos.X - player.left; 마우스 발사 예시
-		//Y_vector = pos.Y - player.top;
-
-		//Distance = sqrtf(powf(X_vector, 2)) + sqrtf(powf(Y_vector, 2));
-
-		//X_vector = X_vector / Distance;
-		//Y_vector = Y_vector / Distance;
-
-		//Missile_speed_X = X_vector * 1.0f;
-		//Missile_speed_Y = Y_vector * 1.0f;
+		isPlayerAttack = true;
+		pl.animPosY = 4;
+		pl.moveSpeed = 5;
+		keyLayout[VK_LBUTTON] = 1;
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
 	break;
 	case WM_LBUTTONUP:
 	{
+		isPlayerAttack = false;
 		mouse.x = LOWORD(lParam);
 		mouse.y = HIWORD(lParam);
+		keyLayout[VK_LBUTTON] = 0;
+		pl.moveSpeed = 15;
 	}
 	break;
 	case WM_MOUSEMOVE:
@@ -371,8 +359,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (wParam)
 			{
 				sceneNow = SCENE_STAGE;
-				SetTimer(hWnd, 1, 50, NULL);
-				SetTimer(hWnd, 2, 50, NULL);
+				SetTimer(hWnd, TM_ANIMATION, speed_anim, NULL);
+				SetTimer(hWnd, TM_MOVE, speed_move, NULL);
+				SetTimer(hWnd, TM_ATTACK, speed_attack, NULL);
 				//Logo.ReleaseDC();
 			}
 		}
@@ -380,25 +369,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if ('a' == wParam || 'A' == wParam)
 		{
 			keyLayout[VK_LEFT] = 1;
-			pl.animPosY = 2;
+			if (!isPlayerAttack)
+				pl.animPosY = 2;
 			check_collision(&pl, &sw);
 		}
 		if ('d' == wParam || 'D' == wParam)
 		{
 			keyLayout[VK_RIGHT] = 1;
-			pl.animPosY = 2;
+			if (!isPlayerAttack)
+				pl.animPosY = 2;
 			check_collision(&pl, &sw);
 		}
 		if ('w' == wParam || 'W' == wParam)
 		{
 			keyLayout[VK_UP] = 1;
-			pl.animPosY = 2;
+			if (!isPlayerAttack)
+				pl.animPosY = 2;
 			check_collision(&pl, &sw);
 		}
 		if ('s' == wParam || 'S' == wParam)
 		{
 			keyLayout[VK_DOWN] = 1;
-			pl.animPosY = 2;
+			if (!isPlayerAttack)
+				pl.animPosY = 2;
 			check_collision(&pl, &sw);
 		}
 	}
@@ -435,6 +428,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if (SCENE_LOGO == sceneNow)
 		{
+			// 로고
 			int w = Logo.GetWidth();
 			int h = Logo.GetHeight();
 			Logo.Draw(memdc, 0, 0, c.right, c.bottom, 0, 0, w, h);
@@ -442,13 +436,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else if (SCENE_STAGE == sceneNow)
 		{
-			create_stone_map(memdc, &StoneTile, &MAPTILE_1_2, &MAPTILE_2_1, &MAPTILE_2_2, &MAPTILE_3_1, &MAPTILE_3_2, &MAPTILE_4_1, &borderWidth, &statue, &horizontalWell,
-				&chairLeft,&treeLeft,&treeRight,&treeLeftPurple,&treeRightPurple,&insignia);
-
-			//몬스터를 랜덤하게 이동할때 쓰이는 변수
-			/*if (howManyMove % 10 == 0)
-				whereToGo = direction(gen);*/
-
+			// 맵
+			int w = StoneMap.GetWidth();
+			int h = StoneMap.GetHeight();
+			StoneMap.Draw(memdc, 0, 0, WORLD_WIDTH, WORLD_HEIGHT, 0, 0, w, h);
+			// 몬스터
 			if (DIR_LEFT == sw.dir)
 			{
 				if (3 == sw.animPosY) // 칼 휘두르는 모션 중이면 잔상이펙트도 그려지게
@@ -467,7 +459,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				animation(memdc, &SwordmanRight, &sw, TYPE_SWORD);
 			}
-
+			// 플레이어
 			if (DIR_DOWN == pl.dir)
 			{
 				animation(memdc, &PlayerFront, &pl, TYPE_PLAYER);
@@ -484,6 +476,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				animation(memdc, &PlayerRight, &pl, TYPE_PLAYER);
 			}
+			// 이펙트, 파티클
 			if (0 != ice.size())
 			{
 				for (const auto& a : ice)
@@ -491,10 +484,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					animation(memdc, &IceAttack, a, EL_ICE);
 				}
 			}
-
+			if (0 != ice_end.size())
+			{
+				for (const auto& a : ice_end)
+				{
+					animation(memdc, &IceParticle, a, EL_ICE_END);
+				}
+			}
 			Target.TransparentBlt(memdc, winposX + mouse.x - 30, winposY + mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // 마우스
-			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
-				memdc, winposX, winposY, SRCCOPY);
+			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memdc, winposX, winposY, SRCCOPY);
 		}
 
 		DeleteObject(hBitmap);
@@ -507,7 +505,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		KillTimer(hWnd, 2);
 
 		Target.ReleaseDC();
-		StoneTile.ReleaseDC();
+		StoneMap.ReleaseDC();
 
 		PlayerFront.ReleaseDC();
 		PlayerBack.ReleaseDC();
@@ -529,96 +527,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* img4, CImage* img5, CImage* img6, CImage* img7, CImage* img8, CImage* img9, CImage* img10
-	, CImage* img11, CImage* img12, CImage* img13, CImage* img14, CImage* img15, CImage* img16)
+void draw_map(HDC hdc, CImage* img)
 {
-	/*for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, 0, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3, 0, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);
-
-	for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, h / 4 * 3, w, h / 4, 0, h / 4, w, h / 4);
-	img->Draw(hdc, w * 3, h / 4 * 3, w / 3 * 2, h / 4, 0, h / 4, w, h / 4);
-
-	for (int i = 0; i < PATTERN_SIZE; ++i)
-		img->Draw(hdc, w * i, h, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3, h, w / 3 * 2, h / 4 * 3, 0, 0, w / 3 * 2, h / 4 * 3);*/
-	int PATTERN_SIZE = 8;
 	int w = img->GetWidth();
 	int h = img->GetHeight();
-
-	int w2 = img2->GetWidth();
-	int h2 = img2->GetHeight();
-
-	int w3 = img3->GetWidth();
-	int h3 = img3->GetHeight();
-
-	int w4 = img4->GetWidth();
-	int h4 = img4->GetHeight();
-
-	int w5 = img5->GetWidth();
-	int h5 = img5->GetHeight();
-
-	int w6 = img6->GetWidth();
-	int h6 = img6->GetHeight();
-
-	int w7 = img7->GetWidth();
-	int h7 = img7->GetHeight();
-
-	int w8 = img8->GetWidth();
-	int h8 = img8->GetHeight();
-
-	int w9 = img9->GetWidth();
-	int h9 = img9->GetHeight();
-
-	int w10 = img10->GetWidth();
-	int h10 = img10->GetHeight();
-
-	int w11 = img11->GetWidth();
-	int h11 = img11->GetHeight();
-
-	int w12 = img12->GetWidth();
-	int h12 = img12->GetHeight();
-
-	int w13 = img13->GetWidth();
-	int h13 = img13->GetHeight();
-
-	int w14 = img14->GetWidth();
-	int h14 = img14->GetHeight();
-
-	int w15 = img15->GetWidth();
-	int h15 = img15->GetHeight();
-
-	int w16 = img16->GetWidth();
-	int h16 = img16->GetHeight();
-
-	for (int i = 0; i < 2; ++i)
-		img3->Draw(hdc, 1000, 905 + h3 / 3 * i, w3 - 30, 150, 0, 0, w3, 150);
-
-	img3->Draw(hdc, 1000, 905 + h3 / 3 * 2, w3 - 30, 70, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000, 905 + h3 / 3 * 2.5, w3 - 160, 130, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000, 905 + h3 / 3 * 3, w3 - 170, 80, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3, w3, 150, 0, 0, w3, 150);
-	img3->Draw(hdc, 1000 - w3, 905 + h3 / 3 * 3 + 100, w3, 140, 0, 0, w3, 150);
-
-	for (int i = 0; i < 6; ++i)
-		img5->Draw(hdc, i * (w - 10), 100, w * 1.09, h, 0, 310, w, 350);//312 365   270  310                   
-
-
-	//왼쪽 잔디밭
-	for (int i = 0; i < 3; ++i)
-	{
-		img->Draw(hdc, w * i, 183, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
-
-		for (int j = 0; j < 2; ++j)
-		{
-			img3->Draw(hdc, (w - 10) * i, 183 + h + j * h3, w, 200, 0, 0, w, 200);
-			img3->Draw(hdc, (w - 10) * i, 183 + h + 200 + h3 * j, w, h3 - 200, 0, 0, w, 200);
-		}
-	}
-	img3->Draw(hdc, (w - 10) * 0, 183 + h + 3 * h3-415, w+55, 140, 0, 0, w, 140);
-	img3->Draw(hdc, (w - 10) * 1, 183 + h + 3 * h3-415, w+55, 140, 0, 0, w, 140);
 	
+<<<<<<< HEAD
 	img4->Draw(hdc, w * 3, 180, w, h, 0, 0, 250, 210);//270 380
 	img4->Draw(hdc, w * 3, 180 + h, w, h, 0, 0, 250, 210);//270 380
 
@@ -702,6 +616,9 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	img16->TransparentBlt(hdc,0, 180, w16, h16, 0, 0, w16, h16, RGB(255, 0, 255));
 	//어디가 맵의 끝자락인지
 	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
+=======
+	img->Draw(hdc, 0, 0, w, h, 0, 0, w, h);
+>>>>>>> fbbcf048c027c430d217a95b60e5201e9539fa6b
 }
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
@@ -717,7 +634,7 @@ void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
 	if (EL_ICE_END == type)
 	{
 		img->TransparentBlt(hdc, ch.posX, ch.posY, ch.sizeX, ch.sizeY,
-			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(200, 230, 250));
+			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(255, 0, 255));
 	}
 }
 
@@ -742,7 +659,7 @@ void animation(HDC hdc, CImage* img, Character* ch, TYPE type)
 	}
 }
 
-void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle)
+void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 {
 	POINT move;
 
@@ -751,12 +668,12 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle)
 	else if (input[VK_LEFT])
 	{
 		*dir = DIR_LEFT;
-		move.x = -15.f;
+		move.x = -speed;
 	}
 	else
 	{
 		*dir = DIR_RIGHT;
-		move.x = 15.f;
+		move.x = speed;
 	}
 
 
@@ -765,16 +682,42 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, bool* idle)
 	else if (input[VK_UP])
 	{
 		*dir = DIR_UP;
-		move.y = -15.f;
+		move.y = -speed;
 	}
 	else
 	{
 		*dir = DIR_DOWN;
-		move.y = 15.f;
+		move.y = speed;
 	}
 
 	*posx += move.x;
 	*posy += move.y;
+}
+
+void boundary_correction(int* posx, int* posy, Character* ch)
+{
+	if (NULL == ch) // 카메라 경계
+	{
+		if (*posx < 0)
+			*posx = 0;
+		if (*posy < 0)
+			*posy = 0;
+		if (*posx > WORLD_WIDTH - WINDOW_WIDTH)
+			*posx = WORLD_WIDTH - WINDOW_WIDTH;
+		if (*posy > WORLD_HEIGHT - WINDOW_HEIGHT)
+			*posy = WORLD_HEIGHT - WINDOW_HEIGHT;
+	}
+	else // 캐릭터 경계
+	{
+		if (ch->posX < 0)
+			ch->posX = 0;
+		if (ch->posY < 0)
+			ch->posY = 0;
+		if (ch->posX > WORLD_WIDTH - ch->sizeX)
+			ch->posX = WORLD_WIDTH - ch->sizeX;
+		if (ch->posY > WORLD_HEIGHT - ch->sizeY)
+			ch->posY = WORLD_HEIGHT - ch->sizeY;
+	}
 }
 
 DIR check_collision(Character* a, Character* b)
