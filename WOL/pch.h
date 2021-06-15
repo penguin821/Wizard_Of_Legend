@@ -21,7 +21,7 @@ using namespace std;
 constexpr int WINDOW_WIDTH = 1600;
 constexpr int WINDOW_HEIGHT = 900;
 
-constexpr int SOUND_COUNT = 1;
+constexpr int SOUND_COUNT = 2;
 constexpr int EFFECT_COUNT = EF_END;
 constexpr int CHANNEL_COUNT = CH_END;
 constexpr int NUM_MONSTER = 6;
