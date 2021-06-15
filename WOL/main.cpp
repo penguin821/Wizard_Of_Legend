@@ -60,23 +60,23 @@ void check_collision(Character* a, Character* b);
 bool check_collision(Character* a, Effect* b);
 DIR check_collision(Character* a, MapTile(*b)[25]);
 
-void Sound_Setup() 
-{
-	FMOD_System_Create(&System); 
-	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
-
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
-
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
-}
+//void Sound_Setup() 
+//{
+//	FMOD_System_Create(&System); 
+//	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
+//
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
+//
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
+//}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -95,8 +95,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
+//<<<<<<< HEAD
+//	static CImage Flame, IceCard, IceAttack, IceParticle, Wind; // 이펙트
+//	static CImage bossMap, stage1,stage2,stage3;
+//=======
 	static CImage FireAttack, FireParticle, IceCard, IceAttack, IceParticle, Wind; // 이펙트
 	static CImage bossMap, stage1;
+//>>>>>>> 839d531310d7d01d088c03fa36673560f04740c5
 	static Character pl, sw, ar, wz, bs; // 플레이어,소드맨,아처,위자드,보스
 	static SCENE sceneNow;
 	static MAP mapNow;
@@ -130,7 +135,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		mapY = 2600;
 		mapTileX = 25;
 		mapTileY = 25;
-		mapNow = M_MAP1;
+		//mapNow = M_MAP1;
+		//mapNow = M_MAP2;
+		//mapNow = M_MAP3;
+		mapNow = M_BOSS;
 
 		// Map
 		Stage1Map.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
@@ -157,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		PlayerBack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\BACK_COMPLETE.bmp");
 		PlayerLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\LEFT_COMPLETE.bmp");
 		PlayerRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\RIGHT_COMPLETE.bmp");
-		pl.posX = 1500, pl.posY = 1500, pl.animPosX = 1, pl.animPosY = 2;
+		pl.posX = 1000, pl.posY = 1000, pl.animPosX = 1, pl.animPosY = 2;
 		pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100, pl.moveSpeed = 15;
 		pl.dir = DIR_DOWN, pl.type = TYPE_PLAYER, pl.st = ST_IDLE;
 		isIdle = true;
@@ -283,7 +291,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (8 <= it->animPosX)
 					{
-						FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						//FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = ice_end.erase(it);
 					}
 					else
@@ -333,7 +341,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (7 <= it->animPosX)
 					{
-						FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						//FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = fire_end.erase(it);
 					}
 					else
@@ -438,7 +446,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, EL_ICE };
 					ice.emplace_back(temp);
-					FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				if (EL_FIRE == pl.el)
 				{
@@ -447,7 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 5,h / 2, 1, 1, 0, EL_FIRE };
 					fire.emplace_back(temp);
-					FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				isCooltime = true;
 			}
@@ -584,7 +592,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		else if (SCENE_STAGE == sceneNow)
 		{
 			// 맵
-			if (M_MAP1 == mapNow)
+			if (M_MAP1 == mapNow|| M_MAP2 == mapNow|| M_BOSS== mapNow)
 			{
 				int w = Stage1Map.GetWidth();
 				int h = Stage1Map.GetHeight();
@@ -602,6 +610,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				int h = BossMap.GetHeight();
 				BossMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
 			}
+			/*else if (M_MAP2 == mapNow)
+			{
+				int w = StoneMap.GetWidth();
+				int h = StoneMap.GetHeight();
+				StoneMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+			}
+			else if (M_BOSS == mapNow)
+			{
+				int w = StoneMap.GetWidth();
+				int h = StoneMap.GetHeight();
+				StoneMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+			}*/
 			// 몬스터
 			if (DIR_LEFT == sw.dir)
 			{
@@ -706,11 +726,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SwordmanRight.ReleaseDC();
 		SwordmanAttack.ReleaseDC();
 
-		for (int i = 0; i < EFFECT_COUNT; i++)
+		/*for (int i = 0; i < EFFECT_COUNT; i++)
 			FMOD_Sound_Release(effectSound[i]);
 		for (int i = 0; i < SOUND_COUNT; i++)
 			FMOD_Sound_Release(bgmSound[i]);
-		FMOD_System_Release(System);
+		FMOD_System_Release(System);*/
 		KillTimer(hWnd, TM_ANIMATION);
 		KillTimer(hWnd, TM_ATTACK);
 		KillTimer(hWnd, TM_MOVE);
@@ -814,16 +834,140 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 void set_obstacle(MapTile(*map)[25], MAP stage)
 {
 	if (stage == M_MAP1)
+
 	{
-		map[0][3].isObs = true, map[1][3].isObs = true, map[2][3].isObs = true, map[3][3].isObs = true, map[4][3].isObs = true;
-		map[5][3].isObs = true, map[6][3].isObs = true, map[7][3].isObs = true, map[8][3].isObs = true, map[9][3].isObs = true;
-		map[10][3].isObs = true, map[11][3].isObs = true, map[12][3].isObs = true, map[13][3].isObs = true;
+		for (int i = 0; i < 14; ++i)
+			map[i][2].isObs = true;
+
+		for (int i = 4; i < 6; ++i)
+			for(int j=0;j<7;++j)
+				map[j][i].isObs = true;
+	
+		for (int i = 10; i < 13; ++i)
+			for (int j = 0; j < 6; ++j)
+				map[j][i].isObs = true;
+
+		for (int i = 4; i < 5; ++i)
+			for(int j=10;j<14;++j)
+				map[j][i].isObs = true;
+
+		for (int i = 4; i < 10; ++i)
+			map[15][i].isObs = true;
+
+		for (int i = 14; i < 19; ++i)
+			map[i][9].isObs = true;
+
+		for (int i = 5; i < 10; ++i)
+			map[18][i].isObs = true;
+
+		for (int i = 19; i < 25; ++i)
+			map[i][4].isObs = true;
+
+		for (int i = 5; i < 9; ++i)
+			for (int j = 19; j < 23; ++j)
+				map[j][i].isObs = true;
+
+		for (int i = 11; i < 16; ++i)
+			for (int j = 22; j < 25; ++j)
+				map[j][i].isObs = true;
+	
+		for (int i = 23; i < 25; ++i)
+			map[i][21].isObs = true;
+
+		for (int i = 22; i < 24; ++i)
+			map[22][i].isObs = true;
+
+		for (int i = 19; i < 22; ++i)
+			map[i][24].isObs = true;
+
+		for (int i = 13; i < 24; ++i)
+			map[18][i].isObs = true;
+
+		for (int i = 14; i < 19; ++i)
+			map[i][13].isObs = true;
+
+		for (int i = 10; i < 14; ++i)
+			map[i][15].isObs = true;
+
+		for (int i = 16; i < 18; ++i)
+			map[9][i].isObs = true;
+
+		for (int i = 5; i < 9; ++i)
+			map[i][18].isObs = true;
+
+		for (int i = 19; i < 21; ++i)
+			map[4][i].isObs = true;
+
+		for (int i = 0; i < 4; ++i)
+			map[i][21].isObs = true;
 	}
 	if (stage == M_MAP2)
 	{
+		for (int i = 0; i < 3; ++i)
+			map[0][i].isObs = true;
+
+		for (int i = 2; i < 8; ++i)
+			map[i][3].isObs = true;
+
+		for (int i = 3; i < 12; ++i)
+			map[6][i].isObs = true;
+
+		for (int i = 8; i < 13; ++i)
+			map[i][12].isObs = true;
+
+		for (int i = 12; i < 17; ++i)
+			map[11][i].isObs = true;
+
+		for (int i = 5; i < 13; ++i)
+			map[i][14].isObs = true;
+
+		for (int i = 14; i < 17; ++i)
+			map[5][i].isObs = true;
+
+		for (int i = 11; i < 14; ++i)
+			for (int j = 3; j < 5; ++j)
+				map[j][i].isObs = true;
+
+		for (int i = 0; i < 11; ++i)
+			for (int j = 0; j < 3; ++j)
+				map[j][i].isObs = true;
+
+		for (int i = 20; i < 25; ++i)
+			map[6][i].isObs = true;
+
+		for (int i = 6; i < 13; ++i)
+			map[i][20].isObs = true;
+
+		for (int i = 20; i < 25; ++i)
+			map[11][i].isObs = true;
+
+		for (int i = 17; i < 25; ++i)
+			map[20][i].isObs = true;
+
+		for (int i = 21; i < 25; ++i)
+			map[i][16].isObs = true;
+
+		for (int i = 3; i < 9; ++i)
+			for (int j = 10; j < 25; ++j)
+				map[j][i].isObs = true;
+
+		for (int i = 0; i < 3; ++i)
+			map[19][i].isObs = true;
 	}
 	if (stage == M_BOSS)
 	{
+
+		
+		/*for (int i = 0; i < 3; ++i)
+			for (int j = 0; j < 24; ++j)
+				map[j][i].isObs = true;*/
+
+		for (int i = 0; i < 24; ++i)
+			map[i][3].isObs = true;
+
+		for (int i = 0; i < 24; ++i)
+			map[i][22].isObs = true;
+
 	}
 }
 
