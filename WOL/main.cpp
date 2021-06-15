@@ -92,26 +92,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		isCooltime = false;
 
 		// Map
-<<<<<<< HEAD
-		StoneTile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stonetile.bmp");
-		MAPTILE_1_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_1_2.bmp");
-		MAPTILE_2_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_2_1.bmp");
-		MAPTILE_2_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_2_2.bmp");
-		MAPTILE_3_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_3_1.bmp");
-		MAPTILE_3_2.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_3_2.bmp");
-		MAPTILE_4_1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\MAPTILE_4_1.bmp");
-		borderWidth.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\borderWidth.bmp");
-		statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
-		horizontalWell.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\horizontalWell.bmp");
-		chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
-		treeLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeft.bmp");
-		treeRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRight.bmp");
-		treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
-		treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
-		insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
-		bossMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\bossMap.png");
-		stage1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.png");
-=======
+
 		StoneMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
 		//statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
 		//chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
@@ -120,7 +101,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
 		//treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
 		//insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
->>>>>>> fbbcf048c027c430d217a95b60e5201e9539fa6b
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -532,93 +512,9 @@ void draw_map(HDC hdc, CImage* img)
 	int w = img->GetWidth();
 	int h = img->GetHeight();
 	
-<<<<<<< HEAD
-	img4->Draw(hdc, w * 3, 180, w, h, 0, 0, 250, 210);//270 380
-	img4->Draw(hdc, w * 3, 180 + h, w, h, 0, 0, 250, 210);//270 380
 
-
-	for (int i = 0; i < 2; ++i)
-	{
-		img3->Draw(hdc, w * 3 + w + (w - 40) * i, 180, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç
-		img3->Draw(hdc, w * 3 + w + (w - 40) * i, 180 + h, w, h, 130, 0, 190, 140);//ºó ÀÜµð¹ç ¹Ø¿¡
-	}
-
-	img3->Draw(hdc, (w - 10) * 3, 183 + h, w * 0.25, h, 0, 0, 50, h);//°¡¸²¸·
-
-	img->Draw(hdc, w * 3 + w + 170, 180, w, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	img->Draw(hdc, w * 3 + w + 170 + w, 180, w / 3, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
-
-	for (int i = 0; i < 2; ++i)
-		img4->Draw(hdc, w * 3 + w + 170 + w + 110, 102 + h4 * i, 20, h, 0, 0, 20, h);
-	img4->Draw(hdc, w * 3 + w + 170 + w + 110, 70 + h4 * 2, 20, h, 0, 0, 20, h);
-
-
-	img9->TransparentBlt(hdc, w * 3 + w + 120 + w, 180 + w / 2, 146, 292, 0, 0, 146, 292, RGB(255, 0, 255)); // Á¶°¢»ó
-
-	for (int i = 0; i < 2; ++i)
-		img8->Draw(hdc, 1280 + w8 * i, 1010, w8, h8, 0, 0, w8, h8);
-
-
-	img10->Draw(hdc, 0, 900, w10, h10, 0, 200, 200, h10);//-250 200-
-	img10->Draw(hdc, 200, 900, w10, h10, 30, 200, 150, h10);//-250 200-
-	img10->Draw(hdc, 200 + w10, 900, w10, h10, 30, 200, 150, h10);//-250 200-
-	img10->Draw(hdc, 100 + w10 * 2, 900, w10 / 2, h10, 30, 200, 200, h10);//-250 200-
-
-	for (int i = 0; i < 3; ++i)
-	{
-		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
-		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w / 3 + 30, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
-	}
-
-	img4->Draw(hdc, 1280, 1010, 20, h / 4 * 3, 0, 0, 20, h);
-	img8->Draw(hdc, 1140, 910 + h4, w8 / 2, h8, 0, 0, w8 / 2, h8);
-	img4->Draw(hdc, 1140, 910 + h4, 20, h / 8 * 3, 0, 0, 20, h / 2);
-	img8->Draw(hdc, 1000, 905 + h4 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
-	img4->Draw(hdc, 1000, 905 + h4 + h4 / 2, 20, h / 8 * 3, 0, 0, 20, h / 2);
-
-	for (int i = 0; i < 7; ++i)
-		img8->Draw(hdc, 860 - i * w8 / 2, 900 + h4 * 1.5 + h4 / 2, w8 / 2, h8, 0, 0, w8 / 2, h8);
-
-	//¿ÞÂÊ ³­°£
-	for (int i = 0; i < 4; ++i)
-		img4->Draw(hdc, w * 3 + w + 170 + w + 110+400, 102 + h4 * i+200, 20, h, 0, 0, 20, h);
-	
-	//À­ ³­°£
-		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400+20, 300, w * 1.09, h, 0, 310, w, 350);//312 365   270  310  
-		img5->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20+340, 300, w * 1.09-50, h, 0, 310, w-50, 350);//312 365   270  310  
-	//½ºÅæ¸Ê
-	for(int i=0;i<2;++i)
-		img->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 20 + i * w5, 300+80, w, h / 4 * 3 + 183, 0, 0, w, h / 4 * 3);
-	//ÀÜµð¹ç
-	for(int i=0;i<2;++i)
-		for(int j=0;j<5;++j)
-			img3->Draw(hdc, 2320+w3*i, 800+150*j, w3+10, 150, 0, 0, w3, 150);
-	//¿À¸¥ÂÊ ³­°£
-	for (int i = 0; i < 4; ++i)
-		img4->Draw(hdc, w * 3 + w + 170 + w + 110 + 400 + 660, 102 + h4 * i + 200, 20, h, 0, 0, 20, h);
-	//¿ïÅ¸¸®
-	/*img8->Draw(hdc, 2420, 1000, w8 / 2, h8, 0, 0, w8 / 2, h8);
-	img8->Draw(hdc, 2420+w8/2, 1000, w8 / 2, h8, 0, 0, w8 / 2, h8);
-	img4->Draw(hdc, 2420, 1020 , 20, h / 8 * 3, 0, 0, 20, h / 2);
-	img4->Draw(hdc, 2420+w8-20, 1020, 20, h / 8 * 3, 0, 0, 20, h / 2);*/
-	img10->Draw(hdc, 2420 , 1000, w10, h10, 0, 200, 250, h10);//-250 200-
-	/*for (int i = 0; i < 3; ++i)
-	{
-		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
-		img->Draw(hdc, i * w, 900 + h10 / 2 - 40, w / 3 + 30, h / 4 * 3, 0, 0, w / 3, h / 4 * 3);
-	}*/
-	img->Draw(hdc, 2420,1000+h10-200, w + 30, h / 4 * 3, 0, 0, w, h / 4 * 3);
-	//º¥Ä¡
-	img11->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 +30, 102 + h4 + 400, w11, h11, 0, 0, w11, h11, RGB(255, 0, 255));
-	//³ª¹«
-	img12->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 + 30+200, 102 + h4 + 50, w12, h12, 0, 0, w12, h12, RGB(255, 255, 255));
-	//ÈÖÀå
-	img16->TransparentBlt(hdc,0, 180, w16, h16, 0, 0, w16, h16, RGB(255, 0, 255));
-	//¾îµð°¡ ¸ÊÀÇ ³¡ÀÚ¶ôÀÎÁö
-	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
-=======
 	img->Draw(hdc, 0, 0, w, h, 0, 0, w, h);
->>>>>>> fbbcf048c027c430d217a95b60e5201e9539fa6b
+
 }
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
