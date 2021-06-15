@@ -24,6 +24,7 @@ struct Character
 	int ef_sizeY;
 	int hp;
 	int moveSpeed;
+	int damage;
 	STATUS st;
 	DIR dir;
 	TYPE type;

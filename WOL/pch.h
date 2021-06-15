@@ -5,10 +5,7 @@
 #include <ctime>
 #include <atlImage.h>
 #include <random>
-//#include <fmod.h>
-//#include "resource.h"
-//#pragma comment (lib, "msimg32.lib")
-//#pragma comment(lib, "msimg32.lib")
+#include <fmod.h>
 
 #pragma comment(lib, "msimg32.lib")
 #ifdef _DEBUG
@@ -27,8 +24,9 @@ constexpr int WINDOW_HEIGHT = 900;
 constexpr int SOUND_COUNT = 1;
 constexpr int EFFECT_COUNT = EF_END;
 constexpr int CHANNEL_COUNT = CH_END;
+constexpr int NUM_MONSTER = 6;
 
-//FMOD_SYSTEM* System;
-//FMOD_SOUND* bgmSound[SOUND_COUNT];
-//FMOD_SOUND* effectSound[EFFECT_COUNT];
-//FMOD_CHANNEL* Channel[CHANNEL_COUNT];
+FMOD_SYSTEM* System;
+FMOD_SOUND* bgmSound[SOUND_COUNT];
+FMOD_SOUND* effectSound[EFFECT_COUNT];
+FMOD_CHANNEL* Channel[CHANNEL_COUNT];
