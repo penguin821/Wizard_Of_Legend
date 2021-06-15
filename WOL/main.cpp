@@ -56,8 +56,8 @@ void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed);
 void set_obstacle(MapTile(*map)[25], MAP stage);
 void total_boundary_correction(const int& mapx, const int& mapy, int* posx, int* posy, Character* ch);
-DIR check_collision(Character* a, Character* b);
-DIR check_collision(Character* a, Effect* b);
+void check_collision(Character* a, Character* b);
+bool check_collision(Character* a, Effect* b);
 DIR check_collision(Character* a, MapTile(*b)[25]);
 int port(Character* wizard, img* portal, MAP* mapNow, int* mapX, int* mapY, CImage* StoneMap);
 
@@ -90,8 +90,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HPEN hPen, oldPen;
 	static bool keyLayout[256];
 
-	static CImage Logo, Target, Summon;
-	static CImage StoneMap, statue, chairLeft;
+	static CImage Logo, Target, Profile, Health;
+	static CImage Stage1Map, Stage2Map,BossMap, statue, chairLeft;
 	static CImage treeLeft, treeRight, treeLeftPurple, treeRightPurple, insignia;
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
@@ -128,10 +128,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// UI
 		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
 		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
+<<<<<<< HEAD
 		Summon.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
 		teleport.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\TELEPORT.bmp");
 		//Sound_Setup();
 		//FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
+=======
+		Profile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_PLAYERBAR.bmp");
+		Health.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_HPBAR.bmp");
+		Sound_Setup();
+		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 		GetClientRect(hWnd, &c);
 		ShowCursor(false);
 		sceneNow = SCENE_LOGO;
@@ -149,6 +156,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//mapNow = M_BOSS;
 
 		// Map
+<<<<<<< HEAD
 		if (mapNow == M_MAP1)
 			StoneMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
 		else if (mapNow == M_MAP2)
@@ -159,6 +167,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			mapX = 2592;
 			mapY = 1456;
 		}
+=======
+		Stage1Map.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
+		Stage2Map.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage2.bmp");
+		BossMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\bossMap.png");
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 		for (int i = 0; i < mapTileX; ++i)
 		{
 			for (int j = 0; j < mapTileY; ++j)
@@ -260,25 +273,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (2 <= pl.animPosX) pl.animPosX = 1;
 				else pl.animPosX += 1;
 			}
-
-			if (2 == sw.animPosY) // 왼쪽 이동
+			if (7 == pl.animPosY)
 			{
-				if (6 <= sw.animPosX) sw.animPosX = 1;
-				else sw.animPosX += 1;
+				if (7 <= pl.animPosX) pl.animPosX = 7;
+				else pl.animPosX += 1;
 			}
-			else if (3 == sw.animPosY) // 왼쪽 공격
-			{
-				if (3 <= sw.animPosX) sw.animPosX = 1;
-				else sw.animPosX += 1;
-			}
-			else if (4 == sw.animPosY) // 왼쪽 이동
-			{
-				if (2 <= sw.animPosX) sw.animPosX = 1;
-				else sw.animPosX += 1;
-			}
-			if (4 <= sw.ef_animPosX) sw.ef_animPosX = 1;
-			else sw.ef_animPosX += 1;
-
 			if (0 != ice.size())
 			{
 				for (auto it = ice.begin(); it != ice.end();)
@@ -303,8 +302,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 
 				for (int i = 0; i < ice.size(); ++i)
-					check_collision(&sw, &ice[i]);
-				InvalidateRect(hWnd, NULL, FALSE);
+				{
+					if (check_collision(&sw, &ice[i]))
+					{
+						Effect temp = { ice[i].posX ,ice[i].posY ,ice[i].posX ,ice[i].posY,
+							IceParticle.GetWidth() / 8,IceParticle.GetHeight(),1,1 };
+						ice_end.emplace_back(temp);
+						ice.erase(ice.begin() + i);
+					}
+				}
 			}
 
 			if (0 != ice_end.size())
@@ -346,17 +352,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						++it;
 					}
 				}
-
 				for (int i = 0; i < fire.size(); ++i)
-					check_collision(&sw, &fire[i]);
-				InvalidateRect(hWnd, NULL, FALSE);
+				{
+					if (check_collision(&sw, &fire[i]))
+					{
+						Effect temp = { fire[i].endPosX ,fire[i].endPosY ,fire[i].endPosX ,fire[i].endPosY,
+								FireParticle.GetWidth() / 7,FireParticle.GetHeight() / 4,1,3 };
+						fire_end.emplace_back(temp);
+						fire.erase(fire.begin() + i);
+					}
+				}
 			}
-
 			if (0 != fire_end.size())
 			{
 				for (auto it = fire_end.begin(); it != fire_end.end();)
 				{
-					if (5 <= it->animPosX)
+					if (7 <= it->animPosX)
 					{
 						//FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = fire_end.erase(it);
@@ -368,13 +379,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 				}
 			}
+			InvalidateRect(hWnd, NULL, FALSE);
 		}
 		break;
 		case TM_MOVE:
 		{
-			if (!keyLayout[VK_LEFT] && !keyLayout[VK_UP] && !keyLayout[VK_DOWN] && !keyLayout[VK_RIGHT] && !keyLayout[VK_LBUTTON])
-				pl.animPosY = 1;
-			cal_movement(&pl.dir, &pl.posX, &pl.posY, keyLayout, pl.moveSpeed);
+			if (ST_DEATH != pl.st)
+			{
+				if (!keyLayout[VK_LEFT] && !keyLayout[VK_UP] && !keyLayout[VK_DOWN] && !keyLayout[VK_RIGHT] && !keyLayout[VK_LBUTTON])
+					pl.animPosY = 1;
+				cal_movement(&pl.dir, &pl.posX, &pl.posY, keyLayout, pl.moveSpeed);
+			}
 
 			centerX = pl.posX + pl.sizeX / 2;
 			centerY = pl.posY + pl.sizeY / 2;
@@ -386,7 +401,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			total_boundary_correction(mapX, mapY, &winposX, &winposY, NULL);
 			total_boundary_correction(mapX, mapY, NULL, NULL, &pl);
 
-			sw.animPosY = 2;
+			if (2 == sw.animPosY) // 왼쪽 이동
+			{
+				if (6 <= sw.animPosX) sw.animPosX = 1;
+				else sw.animPosX += 1;
+			}
+			else if (3 == sw.animPosY) // 공격
+			{
+				if (3 <= sw.animPosX)
+				{
+					sw.animPosX = 1;
+					sw.animPosY = 2;
+				}
+				else sw.animPosX += 1;
+			}
+			else if (4 == sw.animPosY)
+			{
+				if (2 <= sw.animPosX)
+				{
+					sw.animPosX = 1;
+					sw.animPosY = 2;
+				}
+				else sw.animPosX += 1;
+			}
+			if (4 <= sw.ef_animPosX) sw.ef_animPosX = 1;
+			else sw.ef_animPosX += 1;
+
 			if (pl.posX < sw.posX)
 			{
 				sw.dir = DIR_LEFT;
@@ -411,19 +451,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				//FMOD_System_PlaySound(System, effectSound[EF_MONSTERMOVE], NULL, 0, &Channel[CH_MONSTER]);
 			}
 
-			//check_collision(&pl, &sw);
+			if (ST_DEATH != pl.st)
+				check_collision(&pl, &sw);
 			if (M_MAP1 == mapNow)
+			{
 				check_collision(&pl, map1tile);
+<<<<<<< HEAD
 			else if (M_MAP2 == mapNow)
 				check_collision(&pl, map2tile);
 			else if (M_BOSS == mapNow)
 				check_collision(&pl, bossMaptile);
+=======
+				check_collision(&sw, map1tile);
+			}
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 		}
 		break;
 		case TM_ATTACK:
 		{
 			isCooltime = false;
-			if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !isCooltime)
+			if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !isCooltime && ST_DEATH != pl.st)
 			{
 				int realMouseX = winposX + mouse.x;
 				int realMouseY = winposY + mouse.y;
@@ -500,41 +547,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		if ('a' == wParam || 'A' == wParam)
+		if (ST_DEATH != pl.st)
 		{
-			keyLayout[VK_LEFT] = 1;
-			if (!isPlayerAttack)
-				pl.animPosY = 2;
-			//check_collision(&pl, &sw);
-		}
-		if ('d' == wParam || 'D' == wParam)
-		{
-			keyLayout[VK_RIGHT] = 1;
-			if (!isPlayerAttack)
-				pl.animPosY = 2;
-			//check_collision(&pl, &sw);
-		}
-		if ('w' == wParam || 'W' == wParam)
-		{
-			keyLayout[VK_UP] = 1;
-			if (!isPlayerAttack)
-				pl.animPosY = 2;
-			//check_collision(&pl, &sw);
-		}
-		if ('s' == wParam || 'S' == wParam)
-		{
-			keyLayout[VK_DOWN] = 1;
-			if (!isPlayerAttack)
-				pl.animPosY = 2;
-			//check_collision(&pl, &sw);
-		}
-		if ('1' == wParam)
-		{
-			pl.el = EL_ICE;
-		}
-		if ('2' == wParam)
-		{
-			pl.el = EL_FIRE;
+			if ('a' == wParam || 'A' == wParam)
+			{
+				keyLayout[VK_LEFT] = 1;
+				if (!isPlayerAttack)
+					pl.animPosY = 2;
+				//check_collision(&pl, &sw);
+			}
+			if ('d' == wParam || 'D' == wParam)
+			{
+				keyLayout[VK_RIGHT] = 1;
+				if (!isPlayerAttack)
+					pl.animPosY = 2;
+				//check_collision(&pl, &sw);
+			}
+			if ('w' == wParam || 'W' == wParam)
+			{
+				keyLayout[VK_UP] = 1;
+				if (!isPlayerAttack)
+					pl.animPosY = 2;
+				//check_collision(&pl, &sw);
+			}
+			if ('s' == wParam || 'S' == wParam)
+			{
+				keyLayout[VK_DOWN] = 1;
+				if (!isPlayerAttack)
+					pl.animPosY = 2;
+				//check_collision(&pl, &sw);
+			}
+			if ('1' == wParam)
+			{
+				pl.el = EL_ICE;
+			}
+			if ('2' == wParam)
+			{
+				pl.el = EL_FIRE;
+			}
 		}
 	}
 	break;
@@ -566,8 +616,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		memdc = CreateCompatibleDC(hdc);
 		SelectObject(memdc, hBitmap);
 
-		//StretchBlt(mem1dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, mem2dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SRCCOPY);
-
 		if (SCENE_LOGO == sceneNow)
 		{
 			// 로고
@@ -581,6 +629,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// 맵
 			if (M_MAP1 == mapNow || M_MAP2 == mapNow || M_BOSS == mapNow)
 			{
+<<<<<<< HEAD
 				int w = StoneMap.GetWidth();
 				int h = StoneMap.GetHeight();
 				StoneMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
@@ -742,6 +791,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					break;
 				}
+=======
+				int w = Stage1Map.GetWidth();
+				int h = Stage1Map.GetHeight();
+				Stage1Map.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+			}
+			else if (M_MAP2 == mapNow)
+			{
+				int w = Stage2Map.GetWidth();
+				int h = Stage2Map.GetHeight();
+				Stage2Map.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+			}
+			else if (M_BOSS == mapNow)
+			{
+				int w = BossMap.GetWidth();
+				int h = BossMap.GetHeight();
+				BossMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 			}
 			/*else if (M_MAP2 == mapNow)
 			{
@@ -820,6 +886,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					animation(memdc, &FireParticle, a, EL_FIRE_END);
 				}
 			}
+			
+			Profile.TransparentBlt(memdc, winposX, winposY + WINDOW_HEIGHT - Profile.GetHeight() * 2, Profile.GetWidth(), Profile.GetHeight(),
+				0, 0, Profile.GetWidth(), Profile.GetHeight(), RGB(255, 0, 255)); // 체력표시
+
+			Health.TransparentBlt(memdc, winposX + 76, winposY + WINDOW_HEIGHT - Profile.GetHeight() * 2 + 12, pl.hp * Health.GetWidth() / 100, Health.GetHeight(),
+				0, 0, Health.GetWidth(), Health.GetHeight(), RGB(255, 255, 255)); // 체력표시
+
 			Target.TransparentBlt(memdc, winposX + mouse.x - 30, winposY + mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // 마우스
 			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memdc, winposX, winposY, SRCCOPY);
 		}
@@ -834,7 +907,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		KillTimer(hWnd, 2);
 
 		Target.ReleaseDC();
-		StoneMap.ReleaseDC();
+		Stage1Map.ReleaseDC();
+		Stage1Map.ReleaseDC();
+		BossMap.ReleaseDC();
 
 		PlayerFront.ReleaseDC();
 		PlayerBack.ReleaseDC();
@@ -931,13 +1006,11 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 	{
 		*dir = DIR_LEFT;
 		move.x = -speed;
-		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 	else
 	{
 		*dir = DIR_RIGHT;
 		move.x = speed;
-		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 
 
@@ -947,13 +1020,11 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 	{
 		*dir = DIR_UP;
 		move.y = -speed;
-		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 	else
 	{
 		*dir = DIR_DOWN;
 		move.y = speed;
-		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 	*posx += move.x;
 	*posy += move.y;
@@ -1152,6 +1223,7 @@ int port(Character* wizard, img* portal, MAP* mapNow, int* mapX, int* mapY, CIma
 				StoneMap->Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage2.bmp");
 
 
+<<<<<<< HEAD
 				return 1;
 			case M_MAP2:
 				*mapNow = M_BOSS;
@@ -1174,6 +1246,9 @@ int port(Character* wizard, img* portal, MAP* mapNow, int* mapX, int* mapY, CIma
 	return 0;
 }
 DIR check_collision(Character* a, Character* b)
+=======
+void check_collision(Character* a, Character* b)
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 {
 	RECT a_rect = { a->posX,a->posY ,a->posX + a->sizeX ,a->posY + a->sizeY }; // 밀리는 애
 	RECT b_rect = { b->posX,b->posY ,b->posX + b->sizeX ,b->posY + b->sizeY }; // 미는 애
@@ -1199,9 +1274,10 @@ DIR check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					a->hp -= 10;
 				}
-				a->posY += push_y / 4;
-				return DIR_DOWN;
+				a->posY += push_y * 5;
 			}
 			else // 미는애가 밀리는애 아래에 있을때
 			{
@@ -1212,9 +1288,10 @@ DIR check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					a->hp -= 10;
 				}
-				a->posY -= push_y / 4;
-				return DIR_UP;
+				a->posY -= push_y * 5;
 			}
 		}
 		else // 충돌 사각형의 가로<세로 일때= 좌or우 충돌
@@ -1228,9 +1305,10 @@ DIR check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					a->hp -= 10;
 				}
-				a->posX += push_x / 4;
-				return DIR_RIGHT;
+				a->posX += push_x * 5;
 			}
 			else // 미는애가 밀리는애 오른쪽에 있을때
 			{
@@ -1241,17 +1319,25 @@ DIR check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					a->hp -= 10;
 				}
-				a->posX -= push_x / 4;
-				return DIR_LEFT;
+				a->posX -= push_x * 5;
 			}
+		}
+		if (a->hp <= 0)
+		{
+			a->dir = DIR_DOWN;
+			a->hp = 0;
+			a->animPosY = 7;
+			a->st = ST_DEATH;
 		}
 	}
 }
-DIR check_collision(Character* a, Effect* b)
+bool check_collision(Character* a, Effect* b)
 {
 	RECT a_rect = { a->posX,a->posY ,a->posX + a->sizeX ,a->posY + a->sizeY }; // 밀리는 애
-	RECT b_rect = { b->posX,b->posY ,b->posX + b->sizeX ,b->posY + b->sizeY }; // 미는 애
+	RECT b_rect = { b->posX + 50,b->posY + 50 ,b->posX + b->sizeX - 50 ,b->posY + b->sizeY - 50 }; // 미는 애
 	int a_centerX = a->posX + a->sizeX / 2;
 	int a_centerY = a->posY + a->sizeY / 2;
 	int b_centerX = b->posX + b->sizeX / 2;
@@ -1269,27 +1355,33 @@ DIR check_collision(Character* a, Effect* b)
 			{
 				if (TYPE_SWORD == a->type)
 				{
-					b->animPosY = 4;
+					a->animPosY = 4;
+					a->animPosX = 1;
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 				}
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY += push_y / 4;
-				return DIR_DOWN;
+				return true;
 			}
 			else // 미는애가 밀리는애 아래에 있을때
 			{
 				if (TYPE_SWORD == a->type)
 				{
-					b->animPosY = 4;
+					a->animPosY = 4;
+					a->animPosX = 1;
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 				}
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY -= push_y / 4;
-				return DIR_UP;
+				return true;
 			}
 		}
 		else // 충돌 사각형의 가로<세로 일때= 좌or우 충돌
@@ -1298,29 +1390,36 @@ DIR check_collision(Character* a, Effect* b)
 			{
 				if (TYPE_SWORD == a->type)
 				{
-					b->animPosY = 4;
+					a->animPosY = 4;
+					a->animPosX = 1;
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 				}
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX += push_x / 4;
-				return DIR_RIGHT;
+				return true;
 			}
 			else // 미는애가 밀리는애 오른쪽에 있을때
 			{
 				if (TYPE_SWORD == a->type)
 				{
-					b->animPosY = 4;
+					a->animPosY = 4;
+					a->animPosX = 1;
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 				}
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX -= push_x / 4;
-				return DIR_LEFT;
+				return true;
 			}
 		}
+		return false;
 	}
 }
 DIR check_collision(Character* a, MapTile(*b)[25])
