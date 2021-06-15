@@ -31,16 +31,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	ShowWindow(Window, nCmdShow);
 	UpdateWindow(Window);
 
-	while (1) 
+	while (1)
 	{
 		if (PeekMessage(&Message, NULL, 0, 0, PM_REMOVE))
 		{
 			if (Message.message == WM_QUIT)
 				break;
-			TranslateMessage(&Message); 
+			TranslateMessage(&Message);
 			DispatchMessage(&Message);
 		}
-		else 
+		else
 		{
 			//count++; 
 			//wsprintf(str, _T("현재 카운터는 %d입니다"), count); 
@@ -60,6 +60,7 @@ void total_boundary_correction(const int& mapx, const int& mapy, int* posx, int*
 void check_collision(Character* a, Character* b);
 bool check_collision(Character* a, Effect* b);
 DIR check_collision(Character* a, MapTile(*b)[25]);
+int port(Character* wizard, img* portal, MAP* mapNow, int* mapX, int* mapY, CImage* StoneMap);
 
 void Sound_Setup() 
 {
@@ -98,7 +99,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
 	static CImage FireAttack, FireParticle, IceCard, IceAttack, IceParticle, Wind; // 이펙트
 	static CImage bossMap, stage1;
-	static Character pl; // 플레이어,소드맨,아처,위자드,보스
+	static CImage teleport;
+	//>>>>>>> 839d531310d7d01d088c03fa36673560f04740c5
+	static Character pl, sw, ar, wz, bs; // 플레이어,소드맨,아처,위자드,보스
 	static SCENE sceneNow;
 	static MAP mapNow;
 	HBITMAP hBitmap;
@@ -111,6 +114,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static int howManyMove = 0;
 	static int winposX, winposY, centerX, centerY, mapX, mapY, mapTileX, mapTileY;
 	static short speed_anim, speed_move, speed_attack;
+
+	static img tele;
+	tele.sizeX = teleport.GetWidth();
+	tele.sizeY = teleport.GetWidth();
+	tele.Portal = teleport;
+
 	switch (uMsg)
 	{
 	case WM_CREATE: // 첫 초기화
@@ -118,10 +127,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// UI
 		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
 		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
+<<<<<<< HEAD
+		Summon.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
+		teleport.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\TELEPORT.bmp");
+		//Sound_Setup();
+		//FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
+=======
 		Profile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_PLAYERBAR.bmp");
 		Health.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_HPBAR.bmp");
 		Sound_Setup();
 		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 		GetClientRect(hWnd, &c);
 		ShowCursor(false);
 		sceneNow = SCENE_LOGO;
@@ -606,8 +622,171 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		else if (SCENE_STAGE == sceneNow)
 		{
 			// 맵
-			if (M_MAP1 == mapNow)
+			if (M_MAP1 == mapNow || M_MAP2 == mapNow || M_BOSS == mapNow)
 			{
+<<<<<<< HEAD
+				int w = StoneMap.GetWidth();
+				int h = StoneMap.GetHeight();
+				StoneMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+
+				int w2 = teleport.GetWidth();
+				int h2 = teleport.GetHeight();
+
+				switch (mapNow)
+				{
+				case M_MAP1:
+					teleport.TransparentBlt(memdc, 2050, 2200, w2, h2, 0, 0, w2, h2, RGB(255, 0, 255));
+					tele.posX = 2050;
+					tele.posY = 2200;
+
+					if (port(&pl, &tele, &mapNow, &mapX, &mapY, &StoneMap))
+					{
+
+						speed_anim = 20;
+						speed_move = 40;
+						speed_attack = 250;
+						isCooltime = false;
+						mapX = 2700;
+						mapY = 2600;
+						mapTileX = 25;
+						mapTileY = 25;
+
+
+						for (int i = 0; i < mapTileX; ++i)
+						{
+							for (int j = 0; j < mapTileY; ++j)
+							{
+								map1tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map1tile[i][j].isObs = false;
+								map2tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map2tile[i][j].isObs = false;
+								bossMaptile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								bossMaptile[i][j].isObs = false;
+							}
+						}
+						set_obstacle(map1tile, M_MAP1);
+						set_obstacle(map2tile, M_MAP2);
+						set_obstacle(bossMaptile, M_BOSS);
+
+						// Player
+
+						pl.posX = 1000, pl.posY = 1000, pl.animPosX = 1, pl.animPosY = 2;
+						pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100, pl.moveSpeed = 15;
+						pl.dir = DIR_DOWN, pl.type = TYPE_PLAYER, pl.st = ST_IDLE;
+						isIdle = true;
+
+
+						sw.posX = 950, sw.posY = 500, sw.animPosX = 1, sw.animPosY = 2;
+						sw.sizeX = 200, sw.sizeY = 202, sw.hp = 100, sw.moveSpeed = 2;
+						sw.ef_sizeX = 200, sw.ef_sizeY = 200, sw.ef_animPosX = 1;
+						sw.type = TYPE_SWORD, sw.st = ST_IDLE;
+
+						// Effect
+						InvalidateRect(hWnd, NULL, FALSE);
+					}
+					break;
+				case M_MAP2:
+					teleport.TransparentBlt(memdc, 1650, 20, w2, h2, 0, 0, w2, h2, RGB(255, 0, 255));
+					tele.posX = 1650;
+					tele.posY = 20;
+					if (port(&pl, &tele, &mapNow, &mapX, &mapY, &StoneMap))
+					{
+
+						speed_anim = 20;
+						speed_move = 40;
+						speed_attack = 250;
+						isCooltime = false;
+						mapX = 2592;
+						mapY = 1456;
+						mapTileX = 25;
+						mapTileY = 25;
+
+
+						for (int i = 0; i < mapTileX; ++i)
+						{
+							for (int j = 0; j < mapTileY; ++j)
+							{
+								map1tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map1tile[i][j].isObs = false;
+								map2tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map2tile[i][j].isObs = false;
+								bossMaptile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								bossMaptile[i][j].isObs = false;
+							}
+						}
+						set_obstacle(map1tile, M_MAP1);
+						set_obstacle(map2tile, M_MAP2);
+						set_obstacle(bossMaptile, M_BOSS);
+
+						// Player
+
+						pl.posX = 1000, pl.posY = 1000, pl.animPosX = 1, pl.animPosY = 2;
+						pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100, pl.moveSpeed = 15;
+						pl.dir = DIR_DOWN, pl.type = TYPE_PLAYER, pl.st = ST_IDLE;
+						isIdle = true;
+
+
+						sw.posX = 950, sw.posY = 500, sw.animPosX = 1, sw.animPosY = 2;
+						sw.sizeX = 200, sw.sizeY = 202, sw.hp = 100, sw.moveSpeed = 2;
+						sw.ef_sizeX = 200, sw.ef_sizeY = 200, sw.ef_animPosX = 1;
+						sw.type = TYPE_SWORD, sw.st = ST_IDLE;
+
+						// Effect
+						InvalidateRect(hWnd, NULL, FALSE);
+					}
+					break;
+				case M_BOSS:
+					teleport.TransparentBlt(memdc, 1800, 300, w2, h2, 0, 0, w2, h2, RGB(255, 0, 255));
+					tele.posX = 1800;
+					tele.posY = 300;
+					if (port(&pl, &tele, &mapNow, &mapX, &mapY, &StoneMap))
+					{
+
+						speed_anim = 20;
+						speed_move = 40;
+						speed_attack = 250;
+						isCooltime = false;
+						mapX = 2700;
+						mapY = 2600;
+						mapTileX = 25;
+						mapTileY = 25;
+
+
+						for (int i = 0; i < mapTileX; ++i)
+						{
+							for (int j = 0; j < mapTileY; ++j)
+							{
+								map1tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map1tile[i][j].isObs = false;
+								map2tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								map2tile[i][j].isObs = false;
+								bossMaptile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+								bossMaptile[i][j].isObs = false;
+							}
+						}
+						set_obstacle(map1tile, M_MAP1);
+						set_obstacle(map2tile, M_MAP2);
+						set_obstacle(bossMaptile, M_BOSS);
+
+						// Player
+
+						pl.posX = 1000, pl.posY = 1000, pl.animPosX = 1, pl.animPosY = 2;
+						pl.sizeX = 180, pl.sizeY = 182, pl.hp = 100, pl.moveSpeed = 15;
+						pl.dir = DIR_DOWN, pl.type = TYPE_PLAYER, pl.st = ST_IDLE;
+						isIdle = true;
+
+
+						sw.posX = 950, sw.posY = 500, sw.animPosX = 1, sw.animPosY = 2;
+						sw.sizeX = 200, sw.sizeY = 202, sw.hp = 100, sw.moveSpeed = 2;
+						sw.ef_sizeX = 200, sw.ef_sizeY = 200, sw.ef_animPosX = 1;
+						sw.type = TYPE_SWORD, sw.st = ST_IDLE;
+
+						// Effect
+						InvalidateRect(hWnd, NULL, FALSE);
+					}
+					break;
+				}
+=======
 				int w = Stage1Map.GetWidth();
 				int h = Stage1Map.GetHeight();
 				Stage1Map.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
@@ -755,7 +934,7 @@ void draw_map(HDC hdc, CImage* img)
 {
 	int w = img->GetWidth();
 	int h = img->GetHeight();
-	
+
 
 	img->Draw(hdc, 0, 0, w, h, 0, 0, w, h);
 
@@ -780,7 +959,7 @@ void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
 	}
 	if (EL_FIRE_END == type)
 	{
-		img->TransparentBlt(hdc, ch.posX, ch.posY, 2*ch.sizeX/3, 2*ch.sizeY/3,
+		img->TransparentBlt(hdc, ch.posX, ch.posY, 2 * ch.sizeX / 3, 2 * ch.sizeY / 3,
 			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(23, 23, 23));
 	}
 }
@@ -848,15 +1027,15 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 			map[i][2].isObs = true;
 
 		for (int i = 4; i < 6; ++i)
-			for(int j=0;j<7;++j)
+			for (int j = 0; j < 7; ++j)
 				map[j][i].isObs = true;
-	
+
 		for (int i = 10; i < 13; ++i)
 			for (int j = 0; j < 6; ++j)
 				map[j][i].isObs = true;
 
 		for (int i = 4; i < 5; ++i)
-			for(int j=10;j<14;++j)
+			for (int j = 10; j < 14; ++j)
 				map[j][i].isObs = true;
 
 		for (int i = 4; i < 10; ++i)
@@ -878,7 +1057,7 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 		for (int i = 11; i < 16; ++i)
 			for (int j = 22; j < 25; ++j)
 				map[j][i].isObs = true;
-	
+
 		for (int i = 23; i < 25; ++i)
 			map[i][21].isObs = true;
 
@@ -1001,7 +1180,7 @@ void set_monster(vector <Character>& m, MAP stage)
 	}
 }
 
-void total_boundary_correction(const int& mapx, const int& mapy,int* posx, int* posy, Character* ch)
+void total_boundary_correction(const int& mapx, const int& mapy, int* posx, int* posy, Character* ch)
 {
 	if (NULL == ch) // 카메라 경계
 	{
@@ -1026,8 +1205,60 @@ void total_boundary_correction(const int& mapx, const int& mapy,int* posx, int* 
 			ch->posY = mapy - ch->sizeY;
 	}
 }
+int port(Character* wizard, img* portal, MAP* mapNow, int* mapX, int* mapY, CImage* StoneMap)//int* mapTileX,int* mapTileY,CImage* StoneMap)
+{
+	RECT a_rect = { wizard->posX,wizard->posY ,wizard->posX + wizard->sizeX ,wizard->posY + wizard->sizeY }; // 밀리는 애
+	RECT b_rect = { portal->posX,portal->posY ,portal->posX + portal->sizeX ,portal->posY + portal->sizeY }; // 미는 애
+	int a_centerX = wizard->posX + wizard->sizeX / 2;
+	int a_centerY = wizard->posY + wizard->sizeY / 2;
+	int b_centerX = portal->posX + portal->sizeX / 2;
+	int b_centerY = portal->posY + portal->sizeY / 2;
+	RECT temp;
+	int push_x, push_y;
+	if (IntersectRect(&temp, &a_rect, &b_rect)) // a,b에 충돌이 발생하면
+	{
+		push_x = temp.right - temp.left; // 충돌 범위의 가로 크기
+		push_y = temp.bottom - temp.top; // 충돌 범위의 세로 크기
 
+		if (push_x >= wizard->sizeX && push_y >= wizard->sizeY)
+		{
+			switch (*mapNow)
+			{
+			case M_MAP1:
+
+
+				*mapNow = M_MAP2;
+
+
+				StoneMap->Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage2.bmp");
+
+
+<<<<<<< HEAD
+				return 1;
+			case M_MAP2:
+				*mapNow = M_BOSS;
+
+				StoneMap->Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\bossMap2.bmp");
+				*mapX = 2592;
+				*mapY = 1456;
+
+				return 1;
+			case M_BOSS:
+				*mapNow = M_MAP1;
+
+				StoneMap->Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
+
+
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+DIR check_collision(Character* a, Character* b)
+=======
 void check_collision(Character* a, Character* b)
+>>>>>>> a8f46281689d115cc1c6a3372ba6ce7ef1957eb4
 {
 	RECT a_rect = { a->posX,a->posY ,a->posX + a->sizeX ,a->posY + a->sizeY }; // 밀리는 애
 	RECT b_rect = { b->posX,b->posY ,b->posX + b->sizeX ,b->posY + b->sizeY }; // 미는 애
@@ -1226,12 +1457,12 @@ DIR check_collision(Character* a, MapTile(*b)[25])
 					{
 						if (a_centerY > b_centerY) // 미는애가 밀리는애 위에 있을때
 						{
-							a->posY += push_y+10;
+							a->posY += push_y + 10;
 							return DIR_DOWN;
 						}
 						else // 미는애가 밀리는애 아래에 있을때
 						{
-							a->posY -= push_y+10;
+							a->posY -= push_y + 10;
 							return DIR_UP;
 						}
 					}
@@ -1239,12 +1470,12 @@ DIR check_collision(Character* a, MapTile(*b)[25])
 					{
 						if (a_centerX > b_centerX) // 미는애가 밀리는애 왼쪽에 있을때
 						{
-							a->posX += push_x+10;
+							a->posX += push_x + 10;
 							return DIR_RIGHT;
 						}
 						else // 미는애가 밀리는애 오른쪽에 있을때
 						{
-							a->posX -= push_x+10;
+							a->posX -= push_x + 10;
 							return DIR_LEFT;
 						}
 					}

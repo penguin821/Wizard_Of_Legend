@@ -50,3 +50,17 @@ struct MapTile
 	RECT m;
 	bool isObs;
 };
+
+struct img
+{
+	CImage Portal;
+	int posX;
+	int posY;
+	int endPosX;
+	int endPosY;
+	int sizeX; // 캐릭터 이미지 한칸 크기
+	int sizeY;
+	
+	float mid;
+	ELEMENT el;
+};
