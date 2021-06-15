@@ -31,10 +31,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	ShowWindow(Window, nCmdShow);
 	UpdateWindow(Window);
 
-	while (GetMessage(&Message, 0, 0, 0))
+	while (1) 
 	{
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
+		if (PeekMessage(&Message, NULL, 0, 0, PM_REMOVE))
+		{
+			if (Message.message == WM_QUIT)
+				break;
+			TranslateMessage(&Message); 
+			DispatchMessage(&Message);
+		}
+		else 
+		{
+			//count++; 
+			//wsprintf(str, _T("현재 카운터는 %d입니다"), count); 
+			//TextOut(hdc, 10, 10, str, lstrlen(str));
+		}
 	}
 
 	return Message.wParam;
@@ -48,6 +59,24 @@ void total_boundary_correction(const int& mapx, const int& mapy, int* posx, int*
 DIR check_collision(Character* a, Character* b);
 DIR check_collision(Character* a, Effect* b);
 DIR check_collision(Character* a, MapTile(*b)[25]);
+
+void Sound_Setup() 
+{
+	FMOD_System_Create(&System); 
+	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
+
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
+
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -66,13 +95,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage PlayerFront, PlayerBack, PlayerLeft, PlayerRight;
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
-	static CImage Flame, IceCard, IceAttack, IceParticle, Wind; // 이펙트
+	static CImage FireAttack, FireParticle, IceCard, IceAttack, IceParticle, Wind; // 이펙트
 	static CImage bossMap, stage1;
 	static Character pl, sw, ar, wz, bs; // 플레이어,소드맨,아처,위자드,보스
 	static SCENE sceneNow;
 	static MAP mapNow;
 	HBITMAP hBitmap;
-	static vector<Effect> ice, ice_end;
+	static vector<Effect> ice, ice_end, fire, fire_end;
 
 	static bool isIdle, isPlayerAttack, isCooltime;
 	static int whereToGo = 4;
@@ -87,12 +116,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Logo.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\READY_MENU.bmp");
 		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
 		Summon.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
+		Sound_Setup();
+		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
 		GetClientRect(hWnd, &c);
 		ShowCursor(false);
 		sceneNow = SCENE_LOGO;
 		speed_anim = 20;
 		speed_move = 40;
-		speed_attack = 150;
+		speed_attack = 250;
 		isCooltime = false;
 		mapX = 2700;
 		mapY = 2600;
@@ -146,6 +177,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// Effect
 		IceAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Element\\ICE_CRYSTAL.bmp");
 		IceParticle.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Element\\ICE_BLAST.bmp");
+		FireAttack.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Element\\fireball.bmp");
+		FireParticle.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Element\\FIRE_PARTICLE.bmp");
 		//IceCard.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Element\\ICE_KRYSTAL_CARD.bmp");
 	}
 	break;
@@ -181,7 +214,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			if (4 == pl.animPosY)
 			{
-				if (8 <= pl.animPosX)
+				if (4 <= pl.animPosX)
 				{
 					pl.animPosX = 1;
 					pl.animPosY = 5;
@@ -190,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			if (5 == pl.animPosY)
 			{
-				if (8 <= pl.animPosX)
+				if (4 <= pl.animPosX)
 				{
 					pl.animPosX = 1;
 					pl.animPosY = 4;
@@ -253,12 +286,61 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				for (auto it = ice_end.begin(); it != ice_end.end();)
 				{
-						if (8 <= it->animPosX) it = ice_end.erase(it);
-						else 
-						{
-							it->animPosX += 1;
-							++it;
-						}
+					if (8 <= it->animPosX)
+					{
+						FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						it = ice_end.erase(it);
+					}
+					else
+					{
+						it->animPosX += 1;
+						++it;
+					}
+				}
+			}
+
+			if (0 != fire.size())
+			{
+				for (auto it = fire.begin(); it != fire.end();)
+				{
+					if (it->posX == it->endPosX && it->posY == it->endPosY)
+					{
+						Effect temp = { it->endPosX ,it->endPosY ,it->endPosX ,it->endPosY,
+							FireParticle.GetWidth() / 7,FireParticle.GetHeight() / 4,1,3 };
+						fire_end.emplace_back(temp);
+						it = fire.erase(it);
+					}
+					else
+					{
+						it->mid += 0.05f;
+						it->posX = it->posX * (1 - it->mid) + it->mid * it->endPosX;
+						it->posY = it->posY * (1 - it->mid) + it->mid * it->endPosY;
+
+						if (5 <= it->animPosX) it->animPosX = 1;
+						else it->animPosX += 1;
+						++it;
+					}
+				}
+
+				for (int i = 0; i < fire.size(); ++i)
+					check_collision(&sw, &fire[i]);
+				InvalidateRect(hWnd, NULL, FALSE);
+			}
+
+			if (0 != fire_end.size())
+			{
+				for (auto it = fire_end.begin(); it != fire_end.end();)
+				{
+					if (5 <= it->animPosX)
+					{
+						FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						it = fire_end.erase(it);
+					}
+					else
+					{
+						it->animPosX += 1;
+						++it;
+					}
 				}
 			}
 		}
@@ -284,17 +366,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				sw.dir = DIR_LEFT;
 				sw.posX -= sw.moveSpeed;
+				//FMOD_System_PlaySound(System, effectSound[EF_MONSTERMOVE], NULL, 0, &Channel[CH_MONSTER]);
 			}
 			else if (pl.posX > sw.posX)
 			{
 				sw.dir = DIR_RIGHT;
 				sw.posX += sw.moveSpeed;
+				//FMOD_System_PlaySound(System, effectSound[EF_MONSTERMOVE], NULL, 0, &Channel[CH_MONSTER]);
 			}
 
 			if (pl.posY < sw.posY)
+			{
 				sw.posY -= sw.moveSpeed;
+				//FMOD_System_PlaySound(System, effectSound[EF_MONSTERMOVE], NULL, 0, &Channel[CH_MONSTER]);
+			}
 			else if (pl.posY > sw.posY)
+			{
 				sw.posY += sw.moveSpeed;
+				//FMOD_System_PlaySound(System, effectSound[EF_MONSTERMOVE], NULL, 0, &Channel[CH_MONSTER]);
+			}
 
 			//check_collision(&pl, &sw);
 			if (M_MAP1 == mapNow)
@@ -315,9 +405,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, EL_ICE };
 					ice.emplace_back(temp);
+					FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+				}
+				if (EL_FIRE == pl.el)
+				{
+					int w = FireAttack.GetWidth();
+					int h = FireAttack.GetHeight();
+					int start = rand() % 300 - 150;
+					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 5,h / 2, 1, 1, 0, EL_FIRE };
+					fire.emplace_back(temp);
+					FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				isCooltime = true;
 			}
+		}
+		break;
+		case TM_PL_ATTACK:
+		{
+
 		}
 		break;
 		}
@@ -393,6 +498,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (!isPlayerAttack)
 				pl.animPosY = 2;
 			//check_collision(&pl, &sw);
+		}
+		if ('1' == wParam)
+		{
+			pl.el = EL_ICE;
+		}
+		if ('2' == wParam)
+		{
+			pl.el = EL_FIRE;
 		}
 	}
 	break;
@@ -494,6 +607,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					animation(memdc, &IceParticle, a, EL_ICE_END);
 				}
 			}
+			if (0 != fire.size())
+			{
+				for (const auto& a : fire)
+				{
+					animation(memdc, &FireAttack, a, EL_FIRE);
+				}
+			}
+			if (0 != fire_end.size())
+			{
+				for (const auto& a : fire_end)
+				{
+					animation(memdc, &FireParticle, a, EL_FIRE_END);
+				}
+			}
 			Target.TransparentBlt(memdc, winposX + mouse.x - 30, winposY + mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // 마우스
 			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memdc, winposX, winposY, SRCCOPY);
 		}
@@ -524,6 +651,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SwordmanRight.ReleaseDC();
 		SwordmanAttack.ReleaseDC();
 
+		for (int i = 0; i < EFFECT_COUNT; i++)
+			FMOD_Sound_Release(effectSound[i]);
+		for (int i = 0; i < SOUND_COUNT; i++)
+			FMOD_Sound_Release(bgmSound[i]);
+		FMOD_System_Release(System);
+		KillTimer(hWnd, TM_ANIMATION);
+		KillTimer(hWnd, TM_ATTACK);
+		KillTimer(hWnd, TM_MOVE);
+		PostQuitMessage(0);
+
 		PostQuitMessage(0);
 		break;
 	}
@@ -542,9 +679,6 @@ void draw_map(HDC hdc, CImage* img)
 
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
 {
-	int w = img->GetWidth();
-	int h = img->GetHeight();
-
 	if (EL_ICE == type)
 	{
 		img->TransparentBlt(hdc, ch.posX, ch.posY, ch.sizeX, ch.sizeY,
@@ -554,6 +688,16 @@ void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type)
 	{
 		img->TransparentBlt(hdc, ch.posX, ch.posY, ch.sizeX, ch.sizeY,
 			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(255, 0, 255));
+	}
+	if (EL_FIRE == type)
+	{
+		img->TransparentBlt(hdc, ch.posX, ch.posY, ch.sizeX, ch.sizeY,
+			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(0, 0, 0));
+	}
+	if (EL_FIRE_END == type)
+	{
+		img->TransparentBlt(hdc, ch.posX, ch.posY, 2*ch.sizeX/3, 2*ch.sizeY/3,
+			ch.sizeX * (ch.animPosX - 1), ch.sizeY * (ch.animPosY - 1), ch.sizeX, ch.sizeY, RGB(23, 23, 23));
 	}
 }
 
@@ -588,11 +732,13 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 	{
 		*dir = DIR_LEFT;
 		move.x = -speed;
+		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 	else
 	{
 		*dir = DIR_RIGHT;
 		move.x = speed;
+		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 
 
@@ -602,13 +748,14 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 	{
 		*dir = DIR_UP;
 		move.y = -speed;
+		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
 	else
 	{
 		*dir = DIR_DOWN;
 		move.y = speed;
+		//FMOD_System_PlaySound(System, effectSound[EF_PLAYERWALK], NULL, 0, &Channel[CH_PLAYER]);
 	}
-
 	*posx += move.x;
 	*posy += move.y;
 }
