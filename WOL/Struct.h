@@ -5,6 +5,7 @@ enum TYPE { TYPE_PLAYER, TYPE_WIZARD, TYPE_BOSS, TYPE_SWORD, TYPE_EFFECT, TYPE_A
 enum STATUS { ST_IDLE, ST_SUMMON, ST_HIT, ST_MOVE, ST_MLEFT, ST_MRIGHT, ST_ATTACK, ST_DEATH, ST_END };
 enum ELEMENT { EL_ICE, EL_FIRE, EL_WIND, EL_ICE_END, EL_FIRE_END, EL_END };
 enum TIMER { TM_ANIMATION, TM_MOVE, TM_ATTACK, TM_END };
+enum MAP { M_MAP1, M_MAP2, M_BOSS, M_END };
 
 struct Character
 {
@@ -38,4 +39,10 @@ struct Effect
 	int animPosY;
 	float mid;
 	ELEMENT el;
+};
+
+struct MapTile
+{
+	RECT m;
+	bool isObs;
 };

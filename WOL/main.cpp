@@ -43,15 +43,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 void animation(HDC hdc, CImage* img, Character* ch, TYPE type);
 void animation(HDC hdc, CImage* img, const Effect& ch, ELEMENT type);
 void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed);
-void boundary_correction(int* posx, int* posy, Character* ch);
+void set_obstacle(MapTile(*map)[25], MAP stage);
+void total_boundary_correction(const int& mapx, const int& mapy, int* posx, int* posy, Character* ch);
 DIR check_collision(Character* a, Character* b);
 DIR check_collision(Character* a, Effect* b);
+DIR check_collision(Character* a, MapTile(*b)[25]);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc, memdc;
 	static RECT c;
+	static MapTile map1tile[25][25], map2tile[25][25], bossMaptile[25][25];
 	static POINT mouse, camera;
 	HBRUSH hBrush, oldBrush;
 	HPEN hPen, oldPen;
@@ -67,13 +70,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage bossMap, stage1;
 	static Character pl, sw, ar, wz, bs; // 플레이어,소드맨,아처,위자드,보스
 	static SCENE sceneNow;
+	static MAP mapNow;
 	HBITMAP hBitmap;
 	static vector<Effect> ice, ice_end;
 
 	static bool isIdle, isPlayerAttack, isCooltime;
 	static int whereToGo = 4;
 	static int howManyMove = 0;
-	static int winposX, winposY, centerX, centerY;
+	static int winposX, winposY, centerX, centerY, mapX, mapY, mapTileX, mapTileY;
 	static short speed_anim, speed_move, speed_attack;
 	switch (uMsg)
 	{
@@ -90,17 +94,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		speed_move = 40;
 		speed_attack = 150;
 		isCooltime = false;
+		mapX = 2700;
+		mapY = 2600;
+		mapTileX = 25;
+		mapTileY = 25;
+		mapNow = M_MAP1;
 
 		// Map
 
 		StoneMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.bmp");
-		//statue.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\STATUE.bmp");
-		//chairLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\CHAIR_LEFT.bmp");
-		//treeLeft.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeft.bmp");
-		//treeRight.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRight.bmp");
-		//treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
-		//treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
-		//insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
+		for (int i = 0; i < mapTileX; ++i)
+		{
+			for (int j = 0; j < mapTileY; ++j)
+			{
+				map1tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+				map1tile[i][j].isObs = false;
+				map2tile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+				map2tile[i][j].isObs = false;
+				bossMaptile[i][j].m = { i * mapX / mapTileX,j * mapY / mapTileY,(i + 1) * mapX / mapTileX,(j + 1) * mapY / mapTileY };
+				bossMaptile[i][j].isObs = false;
+			}
+		}
+		set_obstacle(map1tile, M_MAP1);
+		set_obstacle(map2tile, M_MAP2);
+		set_obstacle(bossMaptile, M_BOSS);
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -258,9 +275,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			winposX = centerX - WINDOW_WIDTH / 2;
 			winposY = centerY - WINDOW_HEIGHT / 2;
 
-			// 결계 보정
-			boundary_correction(&winposX, &winposY, NULL);
-			boundary_correction(NULL, NULL, &pl);
+			//// 결계 보정
+			total_boundary_correction(mapX, mapY, &winposX, &winposY, NULL);
+			total_boundary_correction(mapX, mapY, NULL, NULL, &pl);
 
 			sw.animPosY = 2;
 			if (pl.posX < sw.posX)
@@ -278,7 +295,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				sw.posY -= sw.moveSpeed;
 			else if (pl.posY > sw.posY)
 				sw.posY += sw.moveSpeed;
-			check_collision(&pl, &sw);
+
+			//check_collision(&pl, &sw);
+			if (M_MAP1 == mapNow)
+				check_collision(&pl, map1tile);
 		}
 		break;
 		case TM_ATTACK:
@@ -351,28 +371,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			keyLayout[VK_LEFT] = 1;
 			if (!isPlayerAttack)
 				pl.animPosY = 2;
-			check_collision(&pl, &sw);
+			//check_collision(&pl, &sw);
 		}
 		if ('d' == wParam || 'D' == wParam)
 		{
 			keyLayout[VK_RIGHT] = 1;
 			if (!isPlayerAttack)
 				pl.animPosY = 2;
-			check_collision(&pl, &sw);
+			//check_collision(&pl, &sw);
 		}
 		if ('w' == wParam || 'W' == wParam)
 		{
 			keyLayout[VK_UP] = 1;
 			if (!isPlayerAttack)
 				pl.animPosY = 2;
-			check_collision(&pl, &sw);
+			//check_collision(&pl, &sw);
 		}
 		if ('s' == wParam || 'S' == wParam)
 		{
 			keyLayout[VK_DOWN] = 1;
 			if (!isPlayerAttack)
 				pl.animPosY = 2;
-			check_collision(&pl, &sw);
+			//check_collision(&pl, &sw);
 		}
 	}
 	break;
@@ -400,7 +420,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		hdc = BeginPaint(hWnd, &ps);
 
-		hBitmap = CreateCompatibleBitmap(hdc, WORLD_WIDTH, WORLD_HEIGHT);
+		hBitmap = CreateCompatibleBitmap(hdc, mapX, mapY);
 		memdc = CreateCompatibleDC(hdc);
 		SelectObject(memdc, hBitmap);
 
@@ -417,9 +437,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		else if (SCENE_STAGE == sceneNow)
 		{
 			// 맵
-			int w = StoneMap.GetWidth();
-			int h = StoneMap.GetHeight();
-			StoneMap.Draw(memdc, 0, 0, WORLD_WIDTH, WORLD_HEIGHT, 0, 0, w, h);
+			if (M_MAP1 == mapNow)
+			{
+				int w = StoneMap.GetWidth();
+				int h = StoneMap.GetHeight();
+				StoneMap.Draw(memdc, 0, 0, mapX, mapY, 0, 0, w, h);
+			}
 			// 몬스터
 			if (DIR_LEFT == sw.dir)
 			{
@@ -590,7 +613,23 @@ void cal_movement(DIR* dir, int* posx, int* posy, bool* input, const int& speed)
 	*posy += move.y;
 }
 
-void boundary_correction(int* posx, int* posy, Character* ch)
+void set_obstacle(MapTile(*map)[25], MAP stage)
+{
+	if (stage == M_MAP1)
+	{
+		map[0][3].isObs = true, map[1][3].isObs = true, map[2][3].isObs = true, map[3][3].isObs = true, map[4][3].isObs = true;
+		map[5][3].isObs = true, map[6][3].isObs = true, map[7][3].isObs = true, map[8][3].isObs = true, map[9][3].isObs = true;
+		map[10][3].isObs = true, map[11][3].isObs = true, map[12][3].isObs = true, map[13][3].isObs = true;
+	}
+	if (stage == M_MAP2)
+	{
+	}
+	if (stage == M_BOSS)
+	{
+	}
+}
+
+void total_boundary_correction(const int& mapx, const int& mapy,int* posx, int* posy, Character* ch)
 {
 	if (NULL == ch) // 카메라 경계
 	{
@@ -598,10 +637,10 @@ void boundary_correction(int* posx, int* posy, Character* ch)
 			*posx = 0;
 		if (*posy < 0)
 			*posy = 0;
-		if (*posx > WORLD_WIDTH - WINDOW_WIDTH)
-			*posx = WORLD_WIDTH - WINDOW_WIDTH;
-		if (*posy > WORLD_HEIGHT - WINDOW_HEIGHT)
-			*posy = WORLD_HEIGHT - WINDOW_HEIGHT;
+		if (*posx > mapx - WINDOW_WIDTH)
+			*posx = mapx - WINDOW_WIDTH;
+		if (*posy > mapy - WINDOW_HEIGHT)
+			*posy = mapy - WINDOW_HEIGHT;
 	}
 	else // 캐릭터 경계
 	{
@@ -609,10 +648,10 @@ void boundary_correction(int* posx, int* posy, Character* ch)
 			ch->posX = 0;
 		if (ch->posY < 0)
 			ch->posY = 0;
-		if (ch->posX > WORLD_WIDTH - ch->sizeX)
-			ch->posX = WORLD_WIDTH - ch->sizeX;
-		if (ch->posY > WORLD_HEIGHT - ch->sizeY)
-			ch->posY = WORLD_HEIGHT - ch->sizeY;
+		if (ch->posX > mapx - ch->sizeX)
+			ch->posX = mapx - ch->sizeX;
+		if (ch->posY > mapy - ch->sizeY)
+			ch->posY = mapy - ch->sizeY;
 	}
 }
 
@@ -691,7 +730,6 @@ DIR check_collision(Character* a, Character* b)
 		}
 	}
 }
-
 DIR check_collision(Character* a, Effect* b)
 {
 	RECT a_rect = { a->posX,a->posY ,a->posX + a->sizeX ,a->posY + a->sizeY }; // 밀리는 애
@@ -763,6 +801,58 @@ DIR check_collision(Character* a, Effect* b)
 				}
 				a->posX -= push_x / 4;
 				return DIR_LEFT;
+			}
+		}
+	}
+}
+DIR check_collision(Character* a, MapTile(*b)[25])
+{
+	for (int i = 0; i < 25; ++i)
+	{
+		for (int j = 0; j < 25; ++j)
+		{
+			if (b[i][j].isObs)
+			{
+				RECT a_rect = { a->posX,a->posY ,a->posX + a->sizeX ,a->posY + a->sizeY }; // 밀리는 애
+				RECT b_rect = b[i][j].m; // 미는 애
+				int a_centerX = a->posX + a->sizeX / 2;
+				int a_centerY = a->posY + a->sizeY / 2;
+				int b_centerX = b[i][j].m.left + 108 / 2;
+				int b_centerY = b[i][j].m.top + 104 / 2;
+				RECT temp;
+				int push_x, push_y;
+				if (IntersectRect(&temp, &a_rect, &b_rect)) // a,b에 충돌이 발생하면
+				{
+					push_x = temp.right - temp.left; // 충돌 범위의 가로 크기
+					push_y = temp.bottom - temp.top; // 충돌 범위의 세로 크기
+
+					if (push_x > push_y) // 충돌 사각형의 가로>세로 일때= 위or아래 충돌
+					{
+						if (a_centerY > b_centerY) // 미는애가 밀리는애 위에 있을때
+						{
+							a->posY += push_y+10;
+							return DIR_DOWN;
+						}
+						else // 미는애가 밀리는애 아래에 있을때
+						{
+							a->posY -= push_y+10;
+							return DIR_UP;
+						}
+					}
+					else // 충돌 사각형의 가로<세로 일때= 좌or우 충돌
+					{
+						if (a_centerX > b_centerX) // 미는애가 밀리는애 왼쪽에 있을때
+						{
+							a->posX += push_x+10;
+							return DIR_RIGHT;
+						}
+						else // 미는애가 밀리는애 오른쪽에 있을때
+						{
+							a->posX -= push_x+10;
+							return DIR_LEFT;
+						}
+					}
+				}
 			}
 		}
 	}
