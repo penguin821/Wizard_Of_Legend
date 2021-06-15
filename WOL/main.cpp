@@ -134,10 +134,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		mapY = 2600;
 		mapTileX = 25;
 		mapTileY = 25;
-		mapNow = M_MAP1;
+		//mapNow = M_MAP1;
 		//mapNow = M_MAP2;
 		//mapNow = M_MAP3;
-		//mapNow = M_BOSS;
+		mapNow = M_BOSS;
 
 		// Map
 		if(mapNow==M_MAP1)
@@ -798,17 +798,17 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 
 	{
 		for (int i = 0; i < 14; ++i)
-			map[i][3].isObs = true;
+			map[i][2].isObs = true;
 
 		for (int i = 4; i < 6; ++i)
 			for(int j=0;j<7;++j)
 				map[j][i].isObs = true;
 	
-		for (int i = 10; i < 14; ++i)
+		for (int i = 10; i < 13; ++i)
 			for (int j = 0; j < 6; ++j)
 				map[j][i].isObs = true;
 
-		for (int i = 4; i < 6; ++i)
+		for (int i = 4; i < 5; ++i)
 			for(int j=10;j<14;++j)
 				map[j][i].isObs = true;
 
