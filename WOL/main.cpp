@@ -65,6 +65,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static CImage ArcherBowLeft, ArcherBowRight, ArcherLeft, ArcherRight; // 몬스터1
 	static CImage SwordmanLeft, SwordmanRight, SwordmanAttack; // 몬스터3
 	static CImage Flame, IceCard, IceAttack, IceParticle, Wind; // 이펙트
+	static CImage bossMap, stage1;
 	static Character pl, sw, ar, wz, bs; // 플레이어,소드맨,아처,위자드,보스
 	static SCENE sceneNow;
 	HBITMAP hBitmap;
@@ -103,6 +104,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		treeLeftPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeLeftPurple.bmp");
 		treeRightPurple.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\treeRightPurple.bmp");
 		insignia.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\insignia.bmp");
+		bossMap.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\bossMap.png");
+		stage1.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\stage1.png");
 
 		// Player
 		PlayerFront.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\FRONT_COMPLETE.bmp");
@@ -696,7 +699,7 @@ void create_stone_map(HDC hdc, CImage* img, CImage* img2, CImage* img3, CImage* 
 	//나무
 	img12->TransparentBlt(hdc, w * 3 + w + 170 + w + 110 + 400 + 30+200, 102 + h4 + 50, w12, h12, 0, 0, w12, h12, RGB(255, 255, 255));
 	//휘장
-	img16->TransparentBlt(hdc,0, 0, w16, h16, 0, 0, w16, h16, RGB(255, 0, 255));
+	img16->TransparentBlt(hdc,0, 180, w16, h16, 0, 0, w16, h16, RGB(255, 0, 255));
 	//어디가 맵의 끝자락인지
 	img3->Draw(hdc, 2600, 2500, w3 , h3, 0, 0, w3, h3);
 }
