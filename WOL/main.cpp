@@ -61,26 +61,27 @@ void check_collision(Character* a, Character* b);
 bool check_collision(Character* a, Effect* b);
 DIR check_collision(Character* a, MapTile(*b)[25]);
 bool check_teleport(Character* a, const RECT& b, MAP* map);
+bool is_near(const Character& a, const Character& b);
 int killcount;
 
-//void Sound_Setup() 
-//{
-//	FMOD_System_Create(&System); 
-//	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
-//
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\end.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[1]);
-//
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
-//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
-//}
+void Sound_Setup() 
+{
+	FMOD_System_Create(&System); 
+	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
+
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\end.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[1]);
+
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
+	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -111,7 +112,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static vector<Character> sw;
 
 	static bool isIdle, isPlayerAttack, isCooltime;
-	static int winposX, winposY, centerX, centerY, mapX, mapY, mapTileX, mapTileY, deathcount;
+	static int winposX, winposY, centerX, centerY, mapX, mapY, mapTileX, mapTileY, deathcount, shakeX, shakeY;
 	static short speed_anim, speed_move, speed_attack;
 
 	switch (uMsg)
@@ -123,8 +124,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Over.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\gameover.bmp");
 		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
 		teleport.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\TELEPORT.bmp");
-		/*Sound_Setup();
-		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);*/
+		Sound_Setup();
+		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
 		Profile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_PLAYERBAR.bmp");
 		Health.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_HPBAR.bmp");
 		GetClientRect(hWnd, &c);
@@ -282,7 +283,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (8 <= it->animPosX)
 					{
-						//FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = ice_end.erase(it);
 					}
 					else
@@ -302,6 +303,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						Effect temp = { it->endPosX ,it->endPosY ,it->endPosX ,it->endPosY,
 							FireParticle.GetWidth() / 7,FireParticle.GetHeight() / 4,1,3 };
 						fire_end.emplace_back(temp);
+						shakeX += rand() % 60 - 30;
+						shakeY += rand() % 60 - 30;
 						it = fire.erase(it);
 					}
 					else
@@ -328,6 +331,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 									Effect temp = { fire[i].endPosX ,fire[i].endPosY ,fire[i].endPosX ,fire[i].endPosY,
 											FireParticle.GetWidth() / 7,FireParticle.GetHeight() / 4,1,3 };
 									fire_end.emplace_back(temp);
+									shakeX += rand() % 60 - 30;
+									shakeY += rand() % 60 - 30;
 									fire.erase(fire.begin() + i);
 									sw[j].hp -= pl.damage;
 									if (0 == fire.size())
@@ -344,7 +349,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (7 <= it->animPosX)
 					{
-						//FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = fire_end.erase(it);
 					}
 					else
@@ -364,6 +369,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (!keyLayout[VK_LEFT] && !keyLayout[VK_UP] && !keyLayout[VK_DOWN] && !keyLayout[VK_RIGHT] && !keyLayout[VK_LBUTTON])
 					pl.animPosY = 1;
 				cal_movement(&pl.dir, &pl.posX, &pl.posY, keyLayout, pl.moveSpeed);
+
+				for (int i = 0; i < sw.size(); ++i)
+				{
+					if (is_near(pl, sw[i]))
+					{
+						sw[i].animPosY = 2;
+						sw[i].st = ST_MOVE;
+					}
+				}
 			}
 
 			centerX = pl.posX + pl.sizeX / 2;
@@ -376,57 +390,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			total_boundary_correction(mapX, mapY, &winposX, &winposY, NULL);
 			total_boundary_correction(mapX, mapY, NULL, NULL, &pl);
 
-			for (auto it = sw.begin(); it != sw.end();)
+			for (int i = 0; i < sw.size(); ++i)
 			{
-				if (ST_MOVE == it->st)
+				if (is_near(pl, sw[i]) && ST_MOVE == sw[i].st)
 				{
-					if (2 == it->animPosY) // 왼쪽 이동
+					if (1 == sw[i].animPosY) // 왼쪽 이동
 					{
-						if (6 <= it->animPosX) it->animPosX = 1;
-						else it->animPosX += 1;
+						if (1 <= sw[i].animPosX) sw[i].animPosX = 1;
 					}
-					else if (3 == it->animPosY) // 공격
+					if (2 == sw[i].animPosY) // 왼쪽 이동
 					{
-						if (3 <= it->animPosX)
+						if (6 <= sw[i].animPosX) sw[i].animPosX = 1;
+						else sw[i].animPosX += 1;
+					}
+					else if (3 == sw[i].animPosY) // 공격
+					{
+						if (3 <= sw[i].animPosX)
 						{
-							it->animPosX = 1;
-							it->animPosY = 2;
+							sw[i].animPosX = 1;
+							sw[i].animPosY = 2;
 						}
-						else it->animPosX += 1;
+						else sw[i].animPosX += 1;
 					}
-					else if (4 == it->animPosY)
+					else if (4 == sw[i].animPosY)
 					{
-						if (2 <= it->animPosX)
+						if (2 <= sw[i].animPosX)
 						{
-							it->animPosX = 1;
-							it->animPosY = 2;
+							sw[i].animPosX = 1;
+							sw[i].animPosY = 2;
 						}
-						else it->animPosX += 1;
+						else sw[i].animPosX += 1;
 					}
-					if (4 <= it->ef_animPosX) it->ef_animPosX = 1;
-					else it->ef_animPosX += 1;
+					if (4 <= sw[i].ef_animPosX) sw[i].ef_animPosX = 1;
+					else sw[i].ef_animPosX += 1;
 
-					if (pl.posX < it->posX)
+					if (pl.posX < sw[i].posX)
 					{
-						it->dir = DIR_LEFT;
-						it->posX -= it->moveSpeed;
+						sw[i].dir = DIR_LEFT;
+						sw[i].posX -= sw[i].moveSpeed;
 					}
-					else if (pl.posX > it->posX)
+					else if (pl.posX > sw[i].posX)
 					{
-						it->dir = DIR_RIGHT;
-						it->posX += it->moveSpeed;
+						sw[i].dir = DIR_RIGHT;
+						sw[i].posX += sw[i].moveSpeed;
 					}
 
-					if (pl.posY < it->posY)
+					if (pl.posY < sw[i].posY)
 					{
-						it->posY -= it->moveSpeed;
+						sw[i].posY -= sw[i].moveSpeed;
 					}
-					else if (pl.posY > it->posY)
+					else if (pl.posY > sw[i].posY)
 					{
-						it->posY += it->moveSpeed;
+						sw[i].posY += sw[i].moveSpeed;
 					}
 				}
-				++it;
 			}
 			if (0 != sw.size())
 			{
@@ -454,6 +471,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			if (NUM_MONSTER == killcount)
 				if (ST_DEATH != pl.st)
+				{
 					if (check_teleport(&pl, tele, &mapNow))
 					{
 						sw.clear();
@@ -461,6 +479,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						set_monster(sw, mapNow);
 						killcount = 0;
 					}
+					else if (M_BOSS == mapNow)
+					{
+						sw.clear();
+						vector<Character>().swap(sw);
+						set_monster(sw, mapNow);
+						killcount = 0;
+					}
+				}
 		}
 		break;
 		case TM_ATTACK:
@@ -477,7 +503,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, pl.damage, EL_ICE };
 					ice.emplace_back(temp);
-					//FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				if (EL_FIRE == pl.el)
 				{
@@ -486,7 +512,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 5,h / 2, 1, 1, 0, pl.damage, EL_FIRE };
 					fire.emplace_back(temp);
-					//FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				isCooltime = true;
 			}
@@ -501,8 +527,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if (20 == deathcount)
 					{
 						sceneNow = SCENE_OVER;
-						/*FMOD_Channel_Stop(Channel[CH_BACK]);
-						FMOD_System_PlaySound(System, bgmSound[1], NULL, 0, &Channel[1]);*/
+						FMOD_Channel_Stop(Channel[CH_BACK]);
+						FMOD_System_PlaySound(System, bgmSound[1], NULL, 0, &Channel[1]);
 					}
 				}
 				else pl.animPosX += 1;
@@ -747,7 +773,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				0, 0, Health.GetWidth(), Health.GetHeight(), RGB(255, 255, 255)); // 체력표시
 
 			Target.TransparentBlt(memdc, winposX + mouse.x - 30, winposY + mouse.y - 30, 60, 60, 0, 0, 60, 60, RGB(255, 0, 255)); // 마우스
-			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memdc, winposX, winposY, SRCCOPY);
+
+			BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, memdc, winposX + shakeX, winposY + shakeY, SRCCOPY);
+			shakeX = 0, shakeY = 0;
 		}
 		else if (SCENE_OVER == sceneNow)
 		{
@@ -764,11 +792,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
-	/*	for (int i = 0; i < EFFECT_COUNT; i++)
+		for (int i = 0; i < EFFECT_COUNT; i++)
 			FMOD_Sound_Release(effectSound[i]);
 		for (int i = 0; i < SOUND_COUNT; i++)
 			FMOD_Sound_Release(bgmSound[i]);
-		FMOD_System_Release(System);*/
+		FMOD_System_Release(System);
 		KillTimer(hWnd, TM_ANIMATION);
 		KillTimer(hWnd, TM_ATTACK);
 		KillTimer(hWnd, TM_MOVE);
@@ -1006,16 +1034,11 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 	}
 	if (stage == M_BOSS)
 	{
-		/*for (int i = 0; i < 3; ++i)
-			for (int j = 0; j < 24; ++j)
-				map[j][i].isObs = true;*/
-
 		for (int i = 0; i < 24; ++i)
 			map[i][1].isObs = true;
 
 		for (int i = 0; i < 24; ++i)
 			map[i][13].isObs = true;
-
 	}
 }
 void set_monster(vector <Character>& m, MAP stage)
@@ -1047,20 +1070,20 @@ void set_monster(vector <Character>& m, MAP stage)
 		}
 		else if (M_BOSS == stage)
 		{
-			/*if (0 == i) temp.posX = 7 * 108, temp.posY = 4 * 104; // 올 랜덤 처리할것
-			if (1 == i) temp.posX = 2 * 108, temp.posY = 16 * 104;
-			if (2 == i) temp.posX = 9 * 108, temp.posY = 9 * 104;
-			if (3 == i) temp.posX = 22 * 108, temp.posY = 7 * 104;
-			if (4 == i) temp.posX = 20 * 108, temp.posY = 18 * 104;
-			if (5 == i) temp.posX = 16 * 108, temp.posY = 10 * 104;*/
+			if (0 == i) temp.posX = 9 * 108, temp.posY = 3 * 104;
+			if (1 == i) temp.posX = 9 * 108, temp.posY = 6 * 104;
+			if (2 == i) temp.posX = 10 * 108, temp.posY = 9 * 104;
+			if (3 == i) temp.posX = 16 * 108, temp.posY = 3 * 104;
+			if (4 == i) temp.posX = 16 * 108, temp.posY = 6 * 104;
+			if (5 == i) temp.posX = 17 * 108, temp.posY = 9 * 104;
 
-			//temp.damage = 10, temp.hp = 100, temp.moveSpeed = 5;
+			temp.damage = 10, temp.hp = 100, temp.moveSpeed = 5;
 		}
 
-		temp.animPosX = 1, temp.animPosY = 2;
+		temp.animPosX = 1, temp.animPosY = 1;
 		temp.sizeX = 200, temp.sizeY = 202;
 		temp.ef_sizeX = 200, temp.ef_sizeY = 200, temp.ef_animPosX = 1;
-		temp.type = TYPE_SWORD, temp.st = ST_MOVE;
+		temp.type = TYPE_SWORD, temp.st = ST_IDLE;
 
 		m.emplace_back(temp);
 	}
@@ -1117,7 +1140,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posY += push_y * 5;
@@ -1131,7 +1154,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posY -= push_y * 5;
@@ -1148,7 +1171,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posX += push_x * 5;
@@ -1162,7 +1185,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posX -= push_x * 5;
@@ -1200,7 +1223,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1214,7 +1237,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY += push_y / 4;
 				return true;
@@ -1225,7 +1248,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1239,7 +1262,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY -= push_y / 4;
 				return true;
@@ -1253,7 +1276,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1267,7 +1290,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX += push_x / 4;
 				return true;
@@ -1278,7 +1301,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1292,7 +1315,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX -= push_x / 4;
 				return true;
@@ -1386,4 +1409,14 @@ bool check_teleport(Character* a, const RECT& b, MAP* map)
 	}
 	else
 		return false;
+}
+
+bool is_near(const Character& a, const Character& b)
+{
+	if (ST_DEATH != b.st)
+	{
+		if (abs(a.posX - b.posX) < WINDOW_WIDTH / 2 && abs(a.posY - b.posY) < WINDOW_HEIGHT / 2)
+			return true;
+	}
+	return false;
 }

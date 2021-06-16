@@ -5,6 +5,7 @@
 #include <ctime>
 #include <atlImage.h>
 #include <random>
+#include <fmod.h>
 //#include <fmod.h>
 
 #pragma comment(lib, "msimg32.lib")
@@ -26,7 +27,7 @@ constexpr int EFFECT_COUNT = EF_END;
 constexpr int CHANNEL_COUNT = CH_END;
 constexpr int NUM_MONSTER = 6;
 
-//FMOD_SYSTEM* System;
-//FMOD_SOUND* bgmSound[SOUND_COUNT];
-//FMOD_SOUND* effectSound[EFFECT_COUNT];
-//FMOD_CHANNEL* Channel[CHANNEL_COUNT];
+FMOD_SYSTEM* System;
+FMOD_SOUND* bgmSound[SOUND_COUNT];
+FMOD_SOUND* effectSound[EFFECT_COUNT];
+FMOD_CHANNEL* Channel[CHANNEL_COUNT];
