@@ -63,24 +63,24 @@ DIR check_collision(Character* a, MapTile(*b)[25]);
 bool check_teleport(Character* a, const RECT& b, MAP* map);
 int killcount;
 
-void Sound_Setup() 
-{
-	FMOD_System_Create(&System); 
-	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
-
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\end.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[1]);
-
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
-	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
-}
+//void Sound_Setup() 
+//{
+//	FMOD_System_Create(&System); 
+//	FMOD_System_Init(System, CH_END, FMOD_INIT_NORMAL, NULL);
+//
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\DUNGEON_BGM.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[0]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\end.mp3", FMOD_LOOP_NORMAL, 0, &bgmSound[1]);
+//
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_BLAST_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICEPOP]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ICE_KRYSTAL_START.mp3", FMOD_DEFAULT, 0, &effectSound[EF_ICESHOOT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\FIRE_DRAGON_3.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIRESHOOT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ULT_USE.mp3", FMOD_DEFAULT, 0, &effectSound[EF_FIREPOP]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_ATTACK.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERATTACK]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_2.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERMOVE]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\ENEMY_HITTED_ICE_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_MONSTERHIT]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\SWORDMAN_RUN_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERWALK]);
+//	FMOD_System_CreateSound(System, "WOL_RESOURCE\\Sound\\HIT_SOUND_NORMAL_1.mp3", FMOD_DEFAULT, 0, &effectSound[EF_PLAYERHIT]);
+//}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -123,8 +123,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Over.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\gameover.bmp");
 		Target.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\UI_MOUSE.bmp");
 		teleport.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Map\\TELEPORT.bmp");
-		Sound_Setup();
-		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);
+		/*Sound_Setup();
+		FMOD_System_PlaySound(System, bgmSound[0], NULL, 0, &Channel[CH_BACK]);*/
 		Profile.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_PLAYERBAR.bmp");
 		Health.Load(L"WOL_RESOURCE\\WOL_TEXTURE\\Player\\UI_HPBAR.bmp");
 		GetClientRect(hWnd, &c);
@@ -282,7 +282,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (8 <= it->animPosX)
 					{
-						FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						//FMOD_System_PlaySound(System, effectSound[EF_ICEPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = ice_end.erase(it);
 					}
 					else
@@ -344,7 +344,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (7 <= it->animPosX)
 					{
-						FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
+						//FMOD_System_PlaySound(System, effectSound[EF_FIREPOP], NULL, 0, &Channel[CH_PARTICLE]);
 						it = fire_end.erase(it);
 					}
 					else
@@ -477,7 +477,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 18,h, 1, 1, 0, pl.damage, EL_ICE };
 					ice.emplace_back(temp);
-					FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_ICESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				if (EL_FIRE == pl.el)
 				{
@@ -486,7 +486,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					int start = rand() % 300 - 150;
 					Effect temp = { pl.posX + start,pl.posY + start,realMouseX ,realMouseY,w / 5,h / 2, 1, 1, 0, pl.damage, EL_FIRE };
 					fire.emplace_back(temp);
-					FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_FIRESHOOT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				isCooltime = true;
 			}
@@ -501,8 +501,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if (20 == deathcount)
 					{
 						sceneNow = SCENE_OVER;
-						FMOD_Channel_Stop(Channel[CH_BACK]);
-						FMOD_System_PlaySound(System, bgmSound[1], NULL, 0, &Channel[1]);
+						/*FMOD_Channel_Stop(Channel[CH_BACK]);
+						FMOD_System_PlaySound(System, bgmSound[1], NULL, 0, &Channel[1]);*/
 					}
 				}
 				else pl.animPosX += 1;
@@ -764,11 +764,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
-		for (int i = 0; i < EFFECT_COUNT; i++)
+	/*	for (int i = 0; i < EFFECT_COUNT; i++)
 			FMOD_Sound_Release(effectSound[i]);
 		for (int i = 0; i < SOUND_COUNT; i++)
 			FMOD_Sound_Release(bgmSound[i]);
-		FMOD_System_Release(System);
+		FMOD_System_Release(System);*/
 		KillTimer(hWnd, TM_ANIMATION);
 		KillTimer(hWnd, TM_ATTACK);
 		KillTimer(hWnd, TM_MOVE);
@@ -868,9 +868,11 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 {
 	if (stage == M_MAP1)
 	{
+		//1
 		for (int i = 0; i < 14; ++i)
 			map[i][2].isObs = true;
 
+		//2
 		for (int i = 4; i < 6; ++i)
 			for (int j = 0; j < 7; ++j)
 				map[j][i].isObs = true;
@@ -935,56 +937,72 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 	}
 	if (stage == M_MAP2)
 	{
-		for (int i = 0; i < 3; ++i)
-			map[0][i].isObs = true;
+	
 
-		for (int i = 2; i < 8; ++i)
-			map[i][3].isObs = true;
-
-		for (int i = 3; i < 12; ++i)
-			map[6][i].isObs = true;
-
-		for (int i = 8; i < 13; ++i)
-			map[i][12].isObs = true;
-
-		for (int i = 12; i < 17; ++i)
-			map[11][i].isObs = true;
-
-		for (int i = 5; i < 13; ++i)
-			map[i][14].isObs = true;
-
-		for (int i = 14; i < 17; ++i)
-			map[5][i].isObs = true;
-
-		for (int i = 11; i < 14; ++i)
-			for (int j = 3; j < 5; ++j)
-				map[j][i].isObs = true;
-
-		for (int i = 0; i < 11; ++i)
+		//1
+		for (int i = 6; i <10; ++i)
 			for (int j = 0; j < 3; ++j)
 				map[j][i].isObs = true;
 
-		for (int i = 20; i < 25; ++i)
+		//2
+		for (int i = 11; i < 13; ++i)
+			for (int j = 3; j < 5; ++j)
+				map[j][i].isObs = true;
+
+		//3
+		for (int i = 14; i < 16; ++i)
+			map[5][i].isObs = true;
+
+		//4
+		for (int i = 5; i < 13; ++i)
+			map[i][15].isObs = true;
+		//5
+		for (int i = 13; i < 16; ++i)
+			map[12][i].isObs = true;
+
+		//6
+		for (int i = 8; i < 13; ++i)
+			map[i][12].isObs = true;
+
+		//7
+		for (int i = 3; i < 12; ++i)
 			map[6][i].isObs = true;
 
+		//8
+		for (int i = 1; i < 7; ++i)
+			map[i][3].isObs = true;
+
+		//9
+		for (int i = 0; i < 3; ++i)
+			map[0][i].isObs = true;
+
+		//2-1
+		for (int i = 21; i < 25; ++i)
+			map[6][i].isObs = true;
+		//2-2
 		for (int i = 6; i < 13; ++i)
 			map[i][20].isObs = true;
 
-		for (int i = 20; i < 25; ++i)
-			map[11][i].isObs = true;
+		//2-3
+		for (int i = 21; i < 25; ++i)
+			map[12][i].isObs = true;
 
+		//3-1
 		for (int i = 17; i < 25; ++i)
-			map[20][i].isObs = true;
-
+			map[21][i].isObs = true;
+		//3-2
 		for (int i = 21; i < 25; ++i)
 			map[i][16].isObs = true;
 
+		//4-1
 		for (int i = 3; i < 9; ++i)
 			for (int j = 10; j < 25; ++j)
 				map[j][i].isObs = true;
-
+		//4-2
 		for (int i = 0; i < 3; ++i)
-			map[19][i].isObs = true;
+			map[20][i].isObs = true;
+
+	
 	}
 	if (stage == M_BOSS)
 	{
@@ -993,10 +1011,10 @@ void set_obstacle(MapTile(*map)[25], MAP stage)
 				map[j][i].isObs = true;*/
 
 		for (int i = 0; i < 24; ++i)
-			map[i][3].isObs = true;
+			map[i][1].isObs = true;
 
 		for (int i = 0; i < 24; ++i)
-			map[i][22].isObs = true;
+			map[i][13].isObs = true;
 
 	}
 }
@@ -1099,7 +1117,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posY += push_y * 5;
@@ -1113,7 +1131,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posY -= push_y * 5;
@@ -1130,7 +1148,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posX += push_x * 5;
@@ -1144,7 +1162,7 @@ void check_collision(Character* a, Character* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 					a->hp -= 10;
 				}
 				a->posX -= push_x * 5;
@@ -1182,7 +1200,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1196,7 +1214,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY += push_y / 4;
 				return true;
@@ -1207,7 +1225,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1221,7 +1239,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posY -= push_y / 4;
 				return true;
@@ -1235,7 +1253,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1249,7 +1267,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX += push_x / 4;
 				return true;
@@ -1260,7 +1278,7 @@ bool check_collision(Character* a, Effect* b)
 				{
 					a->animPosY = 4;
 					a->animPosX = 1;
-					FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
+					//FMOD_System_PlaySound(System, effectSound[EF_MONSTERHIT], NULL, 0, NULL);
 					a->hp -= b->damage;
 					if (a->hp <= 0)
 					{
@@ -1274,7 +1292,7 @@ bool check_collision(Character* a, Effect* b)
 				if (TYPE_PLAYER == a->type)
 				{
 					a->animPosY = 6;
-					FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
+					//FMOD_System_PlaySound(System, effectSound[EF_PLAYERHIT], NULL, 0, &Channel[CH_PLAYER]);
 				}
 				a->posX -= push_x / 4;
 				return true;
