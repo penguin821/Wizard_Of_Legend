@@ -456,7 +456,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (ST_DEATH != pl.st)
 					if (check_teleport(&pl, tele, &mapNow))
 					{
+						sw.clear();
+						vector<Character>().swap(sw);
 						set_monster(sw, mapNow);
+						killcount = 0;
 					}
 		}
 		break;
@@ -1348,17 +1351,21 @@ bool check_teleport(Character* a, const RECT& b, MAP* map)
 			if (M_MAP1 == *map)
 			{
 				*map = M_MAP2;
-				a->posX = 15*108;
-				a->posY = 22*104;
-;			}
+				a->posX = 15 * 108;
+				a->posY = 22 * 104;
+				;
+			}
 			else if (M_MAP2 == *map)
 			{
 				*map = M_BOSS;
-				a->posX = 12*108;
-				a->posY = 10*104;
+				a->posX = 12 * 108;
+				a->posY = 10 * 104;
 			}
 			return true;
 		}
-		return false;
+		else
+			return false;
 	}
+	else
+		return false;
 }
