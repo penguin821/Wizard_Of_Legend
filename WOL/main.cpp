@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	WndClass.lpszClassName = lpszClass;
 	WndClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 	RegisterClassEx(&WndClass);
-	Window = CreateWindow(lpszClass, L"Wizard of Legend", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |
+	Window = CreateWindow(lpszClass, L"Wizard Of Legend", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |
 		WS_BORDER | WS_MINIMIZEBOX, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, NULL, (HMENU)NULL, hInstance, NULL);
 
 	ShowWindow(Window, nCmdShow);
@@ -188,7 +188,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_CHAR:
 	{
-		if (wParam == 'q' || wParam == 'Q')
+		if (wParam == 'h' || wParam == 'H')
 		{
 			PostQuitMessage(0);
 		}
@@ -1070,12 +1070,12 @@ void set_monster(vector <Character>& m, MAP stage)
 		}
 		else if (M_BOSS == stage)
 		{
-			if (0 == i) temp.posX = 9 * 108, temp.posY = 3 * 104;
-			if (1 == i) temp.posX = 9 * 108, temp.posY = 6 * 104;
-			if (2 == i) temp.posX = 10 * 108, temp.posY = 9 * 104;
-			if (3 == i) temp.posX = 16 * 108, temp.posY = 3 * 104;
-			if (4 == i) temp.posX = 16 * 108, temp.posY = 6 * 104;
-			if (5 == i) temp.posX = 17 * 108, temp.posY = 9 * 104;
+			if (0 == i) temp.posX = 10 * 108, temp.posY = 3 * 104;
+			if (1 == i) temp.posX = 10 * 108, temp.posY = 6 * 104;
+			if (2 == i) temp.posX = 11 * 108, temp.posY = 9 * 104;
+			if (3 == i) temp.posX = 17 * 108, temp.posY = 3 * 104;
+			if (4 == i) temp.posX = 17 * 108, temp.posY = 6 * 104;
+			if (5 == i) temp.posX = 18 * 108, temp.posY = 9 * 104;
 
 			temp.damage = 10, temp.hp = 100, temp.moveSpeed = 5;
 		}
